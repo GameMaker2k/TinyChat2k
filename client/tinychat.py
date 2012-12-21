@@ -16,7 +16,7 @@
     $FileInfo: tinychat.py - Last Update: 12/20/2012 Ver. 1.0.0 - Author: cooldude2k $
 '''
 
-import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket;
+import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform;
 
 if(len(sys.argv)<5):
  sys.exit();
@@ -29,9 +29,23 @@ mypass = getpass.getpass();
 mypasshash = hashlib.sha512(mypass.encode("utf-8")).hexdigest();
 chaturl = sys.argv[1]+"://"+sys.argv[2]+sys.argv[3];
 chathostname = getpass.getuser()+"@"+socket.gethostname();
+chatproverinfo = ["TinyChat2k", 1, 0, 0, None];
+if(sys.platform=="win32"):
+ getwinver = sys.getwindowsversion();
+ if(getwinver[3]==0):
+  mywindowstype = "Windows 3.1";
+ if(getwinver[3]==1):
+  mywindowstype = "Windows 9x "+str(getwinver[0])+" "+str(getwinver[1]);
+ if(getwinver[3]==2):
+  mywindowstype = "Windows NT "+str(getwinver[0])+" "+str(getwinver[1]);
+ if(getwinver[3]==3):
+  mywindowstype = "Windows CE "+str(getwinver[0])+" "+str(getwinver[1]);
+ chatua = "Mozilla/5.0 (compatible; "+chatproverinfo[0]+"/"+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3])+"; "+mywindowstype+"; +"+chathostname+")";
+if(sys.platform!="win32"):
+ chatua = "Mozilla/5.0 (compatible; "+chatproverinfo[0]+"/"+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3])+"; "+platform.system()+" "+platform.machine()+" "+platform.release()+"; +"+chathostname+")";
 tinychat_cj = cookielib.CookieJar();
 login_opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(tinychat_cj));
-login_opener.addheaders = [("Referer", ""+chaturl+"api.php"), ("User-Agent", "Mozilla/5.0 (compatible; TinyChat2k/1.0.0; +"+chathostname+")")];
+login_opener.addheaders = [("Referer", ""+chaturl+"api.php"), ("User-Agent", chatua)];
 post_data = urllib.urlencode({'username': myusername, 'userpass' : mypasshash});
 tinychattxt = login_opener.open(chaturl+"api.php?act=login&room="+sys.argv[4], post_data);
 signupcheck = tinychattxt.read()[:];
@@ -63,12 +77,10 @@ inputwin = curses.newwin(win_maxy,  win_maxx, win_maxy - 4, 0);
 inputwin.clear();
 inputwin.keypad(1);
 inputwin.scrollok(True);
-
 def getstr_prompt(txt_screen, txt_prompt): 
  curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK);
  txt_screen.addstr(txt_prompt, curses.color_pair(1));
  return str(txt_screen.getstr().decode("utf-8"))[:];
-
 refreshtime=1;
 threadloopstop=False;
 def getnewmessages():
@@ -106,7 +118,6 @@ def getnewmessages():
    chati = chati + 1;
   if(threadloopstop==False):
    time.sleep(refreshtime);
-
 gnm = threading.Timer(refreshtime, getnewmessages);
 gnm.start();
 mymessagelc = None;
@@ -124,7 +135,6 @@ while(mymessagelc!="quit" and mymessagelc!="exit"):
  if(mymessagelc!="quit" and mymessagelc!="exit"):
   post_data = urllib.urlencode({'message': mymessage});
   tinychating = login_opener.open(chaturl+"api.php?act=message&room="+sys.argv[4], post_data);
-
 threadloopstop=True;
 gnm.cancel();
 curses.endwin();
