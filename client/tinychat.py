@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python2
 
 '''
     This program is free software; you can redistribute it and/or modify
@@ -72,9 +72,26 @@ refreshtime=1;
 threadloopstop=False;
 def getnewmessages():
  global threadloopstop, refreshtime, login_opener;
+ oldtimestamp = None;
  while threadloopstop==False:
-  timestampstart = int(re.findall("([0-9]+)\.", str(time.time()))[0]) - 1;
-  tinychattxt = login_opener.open(chaturl+"api.php?act=view&room="+sys.argv[4]+"&tsstart="+str(timestampstart));
+
+  timestampend = None;
+  timestampstartnew = None;
+  if(oldtimestamp==None):
+   timestampstart = int(re.findall("([0-9]+)\.", str(time.time()))[0]);
+
+  if(oldtimestamp!=None):
+   timestampstart = int(re.findall("([0-9]+)\.", str(time.time()))[0]);
+   timestampcheck = timestampstart-oldtimestamp;
+   if(timestampcheck>1):
+    timestampend = timestampstart;
+    timestampstartnew = timestampstart - (timestampcheck - 1);
+  if(timestampend==None):
+   tinychattxt = login_opener.open(chaturl+"api.php?act=view&room="+sys.argv[4]+"&tsstart="+str(timestampstart));
+  if(timestampend!=None):
+   tinychattxt = login_opener.open(chaturl+"api.php?act=view&room="+sys.argv[4]+"&tsstart="+str(timestampstartnew)+"&tsend="+str(timestampend));
+  
+  oldtimestamp = timestampstart;
   chattext = tinychattxt.readlines();
   chatsize = len(chattext);
   chati = 0;
