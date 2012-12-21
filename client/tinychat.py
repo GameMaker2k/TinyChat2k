@@ -16,7 +16,7 @@
     $FileInfo: tinychat.py - Last Update: 12/20/2012 Ver. 1.0.0 - Author: cooldude2k $
 '''
 
-import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time;
+import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket;
 
 if(len(sys.argv)<5):
  sys.exit();
@@ -28,9 +28,10 @@ if(len(re.findall("([\da-z]+)", myusername))<1):
 mypass = getpass.getpass();
 mypasshash = hashlib.sha512(mypass.encode("utf-8")).hexdigest();
 chaturl = sys.argv[1]+"://"+sys.argv[2]+sys.argv[3];
+chathostname = getpass.getuser()+"@"+socket.gethostname();
 tinychat_cj = cookielib.CookieJar();
 login_opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(tinychat_cj));
-login_opener.addheaders = [("Referer", ""+chaturl+"api.php"), ("User-Agent", "Mozilla/5.0 (compatible; TinyChat2k/1.0.0; +"+chaturl+")")];
+login_opener.addheaders = [("Referer", ""+chaturl+"api.php"), ("User-Agent", "Mozilla/5.0 (compatible; TinyChat2k/1.0.0; +"+chathostname+")")];
 post_data = urllib.urlencode({'username': myusername, 'userpass' : mypasshash});
 tinychattxt = login_opener.open(chaturl+"api.php?act=login&room="+sys.argv[4], post_data);
 signupcheck = tinychattxt.read()[:];
