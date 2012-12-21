@@ -74,12 +74,10 @@ def getnewmessages():
  global threadloopstop, refreshtime, login_opener;
  oldtimestamp = None;
  while threadloopstop==False:
-
   timestampend = None;
   timestampstartnew = None;
   if(oldtimestamp==None):
    timestampstart = int(re.findall("([0-9]+)\.", str(time.time()))[0]);
-
   if(oldtimestamp!=None):
    timestampstart = int(re.findall("([0-9]+)\.", str(time.time()))[0]);
    timestampcheck = timestampstart-oldtimestamp;
@@ -90,7 +88,6 @@ def getnewmessages():
    tinychattxt = login_opener.open(chaturl+"api.php?act=view&room="+sys.argv[4]+"&tsstart="+str(timestampstart));
   if(timestampend!=None):
    tinychattxt = login_opener.open(chaturl+"api.php?act=view&room="+sys.argv[4]+"&tsstart="+str(timestampstartnew)+"&tsend="+str(timestampend));
-  
   oldtimestamp = timestampstart;
   chattext = tinychattxt.readlines();
   chatsize = len(chattext);
@@ -111,7 +108,6 @@ def getnewmessages():
 
 gnm = threading.Timer(refreshtime, getnewmessages);
 gnm.start();
-
 mymessagelc = None;
 while(mymessagelc!="quit" and mymessagelc!="exit"):
  inputwin.clear();

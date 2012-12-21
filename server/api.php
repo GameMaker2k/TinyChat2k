@@ -27,9 +27,8 @@ session_save_path("./sessions/".$roomname."/");
 session_name($roomname);
 session_start();
 $sqlprefix = $roomname."_";
-require("./sqlite.php");
 if(!isset($_GET['act'])) { $_GET['act'] = "view"; }
-if(!isset($_GET['room'])) { $_GET['room'] = "tinychat"; }
+require("./sqlite.php");
 if($_GET['act']=="login") { 
 $findmember = sqlite3_query($slite3, "SELECT COUNT(*) AS count FROM \"".$sqlprefix."members\" WHERE name='".sqlite3_escape_string($slite3, $_POST['username'])."';"); 
 $nummember = sql_fetch_assoc($findmember);
@@ -45,7 +44,7 @@ $_SESSION['username'] = $memberinfo['name'];
 echo "{success:loginuser};"; }
 if($_POST['userpass']!=$memberinfo['password']) {
 setcookie(session_id(), "", time() - 3600);
-echo "{error:loginuser};"; } } }
+echo "{error:loginuser};"; exit(); } } }
 if($_GET['act']=="signup") {
 $findmember = sqlite3_query($slite3, "SELECT COUNT(*) AS count FROM \"".$sqlprefix."members\" WHERE name='".sqlite3_escape_string($slite3, $_POST['username'])."';"); 
 $nummember = sql_fetch_assoc($findmember);
@@ -56,14 +55,14 @@ $usersid = sqlite3_last_insert_rowid($slite3);
 $findmember = sqlite3_query($slite3, "SELECT * FROM \"".$sqlprefix."members\" WHERE name='".sqlite3_escape_string($slite3, $_POST['username'])."';"); 
 $memberinfo = sql_fetch_assoc($findmember); 
 echo "{success:loginuser};"; } 
-if($numrows>0) { echo "{error:loginuser};"; } }
+if($numrows>0) { echo "{error:loginuser};"; exit(); } }
 if($_GET['act']=="message") { 
 if(isset($_SESSION['userid'])&&isset($_SESSION['username'])&&isset($_POST['message'])) {
 echo "INSERT INTO \"".$sqlprefix."messages\" (\"userid\", \"username\", \"timestamp\", \"message\", \"ip\") VALUES ('".sqlite3_escape_string($slite3, $_SESSION['userid'])."', '".sqlite3_escape_string($slite3, $_SESSION['username'])."', '".sqlite3_escape_string($slite3, time())."', '".sqlite3_escape_string($slite3, $_POST['message'])."', '".sqlite3_escape_string($slite3, $_SERVER['REMOTE_ADDR'])."');";
 sqlite3_query($slite3, "INSERT INTO \"".$sqlprefix."messages\" (\"userid\", \"username\", \"timestamp\", \"message\", \"ip\") VALUES ('".sqlite3_escape_string($slite3, $_SESSION['userid'])."', '".sqlite3_escape_string($slite3, $_SESSION['username'])."', '".sqlite3_escape_string($slite3, time())."', '".sqlite3_escape_string($slite3, $_POST['message'])."', '".sqlite3_escape_string($slite3, $_SERVER['REMOTE_ADDR'])."');"); 
 echo "{success:message};"; }
 if(!isset($_SESSION['userid'])||!isset($_SESSION['username'])||!isset($_POST['message'])) { 
-	echo "{error:message};"; } }
+	echo "{error:message};"; exit(); } }
 if($_GET['act']=="view") { 
 if(isset($_SESSION['userid'])&&isset($_SESSION['username'])) { 
 if(!isset($_GET['tsstart'])&&!isset($_GET['tsend'])) {
@@ -76,5 +75,5 @@ if(isset($_GET['tsstart'])&&isset($_GET['tsend'])) {
 $getmessage = sqlite3_query($slite3, "SELECT * FROM \"".$sqlprefix."messages\" WHERE timestamp>=".sqlite3_escape_string($slite3, $_GET['tsstart'])." AND timestamp<=".sqlite3_escape_string($slite3, $_GET['tsend'] - 3)." AND userid<>".$_SESSION['userid'].";"); }
 while ($messageinfo = sql_fetch_assoc($getmessage)) {
 echo $messageinfo['timestamp'].", ".$messageinfo['userid'].", \"".$messageinfo['username']."\", \"".$messageinfo['message']."\";\n"; } }
-if(!isset($_SESSION['userid'])||!isset($_SESSION['username'])) { echo "{error:message};"; } }
+if(!isset($_SESSION['userid'])||!isset($_SESSION['username'])) { echo "{error:message};"; exit(); } }
 ?>

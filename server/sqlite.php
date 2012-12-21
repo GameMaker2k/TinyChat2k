@@ -15,6 +15,11 @@
     $FileInfo: sqlite.php - Last Update: 12/20/2012 Ver. 1.0.0 - Author: cooldude2k $
 */
 
+$ScriptFileName = basename($_SERVER['SCRIPT_NAME']);
+if ($ScriptFileName=="calendars.php"||$ScriptFileName=="/calendars.php") {
+	require("./index.php");
+	exit(); }
+
 $sqlite_version = 3;
 
 if(extension_loaded("sqlite3")&&$sqlite_version==3) {
@@ -71,10 +76,14 @@ function sqlite3_last_insert_rowid($dbhandle) {
 function sqlite3_libversion($dbhandle) {
 	$dbversion = sqlite_libversion();
 	return $dbversion; } }
-
-if(!isset($_SESSION['userid'])||!isset($_SESSION['username'])||!isset($roomname)) { 
+if($_GET['act']=="login"&&(!isset($_POST['username'])||!isset($_POST['userpass']))) { 
+	echo "{error:loginuser};"; exit(); }
+if($_GET['act']=="signup"&&(!isset($_POST['username'])||!isset($_POST['userpass']))) { 
+	echo "{error:loginuser};"; exit(); }
+if($_GET['act']=="message"&&(!isset($_SESSION['userid'])||!isset($_SESSION['username'])||!isset($roomname))) {
+	echo "{error:message};"; exit(); }
+if($_GET['act']=="view"&&(!isset($_SESSION['userid'])||!isset($_SESSION['username'])||!isset($roomname))) { 
 	echo "{error:room};"; exit(); }
-if(isset($_SESSION['userid'])&&isset($_SESSION['username'])&&isset($roomname)) { 
 $slite3 = sqlite3_open("./".$roomname.".sdb");
 $tablecheck1 = @sqlite3_query($slite3, "SELECT * FROM \"".$sqlprefix."members\""); 
 if($tablecheck1===false) {
@@ -104,5 +113,5 @@ $query = "CREATE TABLE \"".$sqlprefix."messages\" (\n".
 "  \"message\" TEXT NOT NULL,\n".
 "  \"ip\" VARCHAR(50) NOT NULL default ''\n".
 ");";
-sqlite3_query($slite3, $query); } }
+sqlite3_query($slite3, $query); }
 ?>
