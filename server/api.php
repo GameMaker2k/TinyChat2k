@@ -17,6 +17,7 @@
 
 ob_start();
 header("Content-Type: text/plain; charset=UTF-8");
+if(!isset($_GET['room'])) { $_GET['room'] = ""; }
 $_GET['room'] = preg_replace("/[^a-z0-9]/", "", strtolower($_GET['room']));
 $roomname = $_GET['room'];
 if($roomname=="") { echo "{error:room};"; exit(); }
