@@ -12,7 +12,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: sqlite.php - Last Update: 12/20/2012 Ver. 1.0.0 - Author: cooldude2k $
+    $FileInfo: sqlite.php - Last Update: 12/21/2012 Ver. 1.0.0 - Author: cooldude2k $
 */
 
 $ScriptFileName = basename($_SERVER['SCRIPT_NAME']);
@@ -42,7 +42,7 @@ function sqlite3_query($dbhandle, $query) {
 function sqlite3_fetch_array($result, $result_type=SQLITE3_BOTH) {
 	$row = $result->fetchArray($result_type);
 	return $row; }
-function sql_fetch_assoc($result) {
+function sqlite3_fetch_assoc($result) {
 	$row = $result->fetchArray(SQLITE3_ASSOC);
 	return $row; }
 function sqlite3_last_insert_rowid($dbhandle) {
@@ -67,7 +67,7 @@ function sqlite3_query($dbhandle, $query) {
 function sqlite3_fetch_array($result, $result_type=SQLITE_BOTH) {
 	$row = sqlite_fetch_array($result, $result_type=SQLITE_BOTH);
 	return $row; }
-function sql_fetch_assoc($result) {
+function sqlite3_fetch_assoc($result) {
 	$row = sqlite_fetch_array($result, SQLITE_ASSOC);
 	return $row; }
 function sqlite3_last_insert_rowid($dbhandle) {
@@ -95,6 +95,7 @@ $query = "CREATE TABLE \"".$sqlprefix."members\" (\n".
 "  \"password\" VARCHAR(250) NOT NULL default '',\n".
 "  \"joined\" INTEGER NOT NULL default '0',\n".
 "  \"lastactive\" INTEGER NOT NULL default '0',\n".
+"  \"lastmessageid\" INTEGER NOT NULL default '0',\n".
 "  \"validated\" VARCHAR(20) NOT NULL default '',\n".
 "  \"bantime\" INTEGER NOT NULL default '0',\n".
 "  \"admin\" VARCHAR(20) NOT NULL default '',\n".

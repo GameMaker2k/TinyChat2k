@@ -13,10 +13,10 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: tinychat.py - Last Update: 12/20/2012 Ver. 1.0.0 - Author: cooldude2k $
+    $FileInfo: tinychat.py - Last Update: 12/21/2012 Ver. 1.0.0 - Author: cooldude2k $
 '''
 
-import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform;
+import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64;
 
 if(len(sys.argv)<5):
  sys.exit();
@@ -87,21 +87,7 @@ def getnewmessages():
  global threadloopstop, refreshtime, login_opener;
  oldtimestamp = None;
  while threadloopstop==False:
-  timestampend = None;
-  timestampstartnew = None;
-  if(oldtimestamp==None):
-   timestampstart = int(re.findall("([0-9]+)\.", str(time.time()))[0]);
-  if(oldtimestamp!=None):
-   timestampstart = int(re.findall("([0-9]+)\.", str(time.time()))[0]);
-   timestampcheck = timestampstart-oldtimestamp;
-   if(timestampcheck>1):
-    timestampend = timestampstart;
-    timestampstartnew = timestampstart - (timestampcheck - 1);
-  if(timestampend==None):
-   tinychattxt = login_opener.open(chaturl+"api.php?act=view&room="+sys.argv[4]+"&tsstart="+str(timestampstart));
-  if(timestampend!=None):
-   tinychattxt = login_opener.open(chaturl+"api.php?act=view&room="+sys.argv[4]+"&tsstart="+str(timestampstartnew)+"&tsend="+str(timestampend));
-  oldtimestamp = timestampstart;
+  tinychattxt = login_opener.open(chaturl+"api.php?act=view&room="+sys.argv[4]);
   chattext = tinychattxt.readlines();
   chatsize = len(chattext);
   chati = 0;
@@ -113,7 +99,7 @@ def getnewmessages():
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
     chatwin.addstr(chatarray[2]+": ", curses.color_pair(2));
     curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK);
-    chatwin.addstr(chatarray[3]+"\n", curses.color_pair(3));
+    chatwin.addstr(base64.b64decode(chatarray[3])+"\n", curses.color_pair(3));
     chatwin.refresh();
    chati = chati + 1;
   if(threadloopstop==False):
