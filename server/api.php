@@ -12,7 +12,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: api.php - Last Update: 12/21/2012 Ver. 1.0.0 - Author: cooldude2k $
+    $FileInfo: api.php - Last Update: 12/22/2012 Ver. 1.0.0 - Author: cooldude2k $
 */
 
 ob_start();
@@ -39,7 +39,14 @@ if($numrows>0) {
 $findmember = sqlite3_query($slite3, "SELECT * FROM \"".$sqlprefix."members\" WHERE \"name\"='".sqlite3_escape_string($slite3, $_POST['username'])."';"); 
 $memberinfo = sqlite3_fetch_assoc($findmember); 
 if($_POST['userpass']==$memberinfo['password']) {
-sqlite3_query($slite3, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($slite3, time())."' WHERE \"id\"=".$memberinfo['id'].";");
+$prenummsgs = sqlite3_query($slite3, "SELECT COUNT(*) AS count FROM \"".$sqlprefix."messages\" ORDER BY \"id\" DESC LIMIT 1;"); 
+$nummsgsasoc = sqlite3_fetch_assoc($prenummsgs);
+$nummsgs = $nummsgsasoc['count'];
+if($nummsgs>=1) {
+$getlastmsg = sqlite3_query($slite3, "SELECT * FROM \"".$sqlprefix."messages\" ORDER BY \"id\" DESC LIMIT 1;");
+$getlastmsgid = sqlite3_fetch_assoc($getlastmsg); }
+if($nummsgs<=0) { $getlastmsgid = "0"; }
+sqlite3_query($slite3, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($slite3, time())."', \"lastmessageid\"=".sqlite3_escape_string($slite3, $getlastmsgid)." WHERE \"id\"=".$memberinfo['id'].";");
 $_SESSION['userid'] = $memberinfo['id'];
 $_SESSION['username'] = $memberinfo['name'];
 echo "{success:loginuser};"; }
@@ -91,6 +98,6 @@ while ($messageinfo = sqlite3_fetch_assoc($getmessage)) {
 $cmessageid = $messageinfo['id'];
 echo $messageinfo['timestamp'].", ".$messageinfo['userid'].", \"".$messageinfo['username']."\", \"".base64_encode($messageinfo['message'])."\";\n"; } 
 if(isset($cmessageid)&&$cmessageid!=null) {
-sqlite3_query($slite3, "UPDATE \"".$sqlprefix."members\" SET \"lastmessageid\"=".sqlite3_escape_string($slite3, $cmessageid)." WHERE \"id\"=".$_SESSION['userid'].";"); } }
+sqlite3_query($slite3, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($slite3, time())."', \"lastmessageid\"=".sqlite3_escape_string($slite3, $cmessageid)." WHERE \"id\"=".$_SESSION['userid'].";"); } }
 if(!isset($_SESSION['userid'])||!isset($_SESSION['username'])) { echo "{error:message};"; exit(); } }
 ?>
