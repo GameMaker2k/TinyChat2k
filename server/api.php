@@ -45,8 +45,8 @@ $nummsgs = $nummsgsasoc['count'];
 if($nummsgs>=1) {
 $getlastmsg = sqlite3_query($slite3, "SELECT * FROM \"".$sqlprefix."messages\" ORDER BY \"id\" DESC LIMIT 1;");
 $getlastmsgid = sqlite3_fetch_assoc($getlastmsg); }
-if($nummsgs<=0) { $getlastmsgid = "0"; }
-sqlite3_query($slite3, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($slite3, time())."', \"lastmessageid\"=".sqlite3_escape_string($slite3, $getlastmsgid)." WHERE \"id\"=".$memberinfo['id'].";");
+if($nummsgs<=0) { $getlastmsgid['id'] = "0"; }
+sqlite3_query($slite3, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($slite3, time())."', \"lastmessageid\"=".sqlite3_escape_string($slite3, $getlastmsgid['id'])." WHERE \"id\"=".$memberinfo['id'].";");
 $_SESSION['userid'] = $memberinfo['id'];
 $_SESSION['username'] = $memberinfo['name'];
 echo "{success:loginuser};"; }
@@ -66,7 +66,7 @@ $nummsgs = $nummsgsasoc['count'];
 if($nummsgs>=1) {
 $getlastmsg = sqlite3_query($slite3, "SELECT * FROM \"".$sqlprefix."messages\" ORDER BY \"id\" DESC LIMIT 1;");
 $getlastmsgid = sqlite3_fetch_assoc($getlastmsg); }
-if($nummsgs<=0) { $getlastmsgid = "0"; }
+if($nummsgs<=0) { $getlastmsgid['id'] = "0"; }
 sqlite3_query($slite3, "INSERT INTO \"".$sqlprefix."members\" (\"name\", \"password\", \"joined\", \"lastactive\", \"lastmessageid\", \"validated\", \"bantime\", \"admin\", \"ip\") VALUES ('".sqlite3_escape_string($slite3, $_POST['username'])."', '".sqlite3_escape_string($slite3, hash("sha512", $_POST['userpass']))."', '".sqlite3_escape_string($slite3, time())."', '".sqlite3_escape_string($slite3, time())."', ".sqlite3_escape_string($slite3, $getlastmsgid['id']).", 'yes', 0, 'no', '".sqlite3_escape_string($slite3, $_SERVER['REMOTE_ADDR'])."');"); 
 $usersid = sqlite3_last_insert_rowid($slite3); 
 $findmember = sqlite3_query($slite3, "SELECT * FROM \"".$sqlprefix."members\" WHERE \"name\"='".sqlite3_escape_string($slite3, $_POST['username'])."';"); 
