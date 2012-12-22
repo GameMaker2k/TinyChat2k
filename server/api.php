@@ -44,7 +44,9 @@ $_SESSION['userid'] = $memberinfo['id'];
 $_SESSION['username'] = $memberinfo['name'];
 echo "{success:loginuser};"; }
 if($_POST['userpass']!=$memberinfo['password']) {
-setcookie(session_id(), "", time() - 3600);
+setcookie(session_name(), "", time() - 42000);
+setcookie(session_id(), "", time() - 42000);
+session_destroy();
 echo "{error:loginuser};"; exit(); } } }
 if($_GET['act']=="signup") {
 $findmember = sqlite3_query($slite3, "SELECT COUNT(*) AS count FROM \"".$sqlprefix."members\" WHERE \"name\"='".sqlite3_escape_string($slite3, $_POST['username'])."';"); 
@@ -64,6 +66,15 @@ $findmember = sqlite3_query($slite3, "SELECT * FROM \"".$sqlprefix."members\" WH
 $memberinfo = sqlite3_fetch_assoc($findmember); 
 echo "{success:loginuser};"; } 
 if($numrows>0) { echo "{error:loginuser};"; exit(); } }
+if($_GET['act']=="logout") {
+if(file_exists("./sessions/".$roomname."/sess_".session_id())) {
+unlink("./sessions/".$roomname."/sess_".session_id()); } 
+setcookie(session_name(), "", time() - 42000);
+setcookie(session_id(), "", time() - 42000);
+session_destroy();
+$_SESSION = array();
+echo "{success:logoutuser};";
+exit(); }
 if($_GET['act']=="message") { 
 if(isset($_SESSION['userid'])&&isset($_SESSION['username'])&&isset($_POST['message'])) {
 sqlite3_query($slite3, "INSERT INTO \"".$sqlprefix."messages\" (\"userid\", \"username\", \"timestamp\", \"message\", \"ip\") VALUES ('".sqlite3_escape_string($slite3, $_SESSION['userid'])."', '".sqlite3_escape_string($slite3, $_SESSION['username'])."', '".sqlite3_escape_string($slite3, time())."', '".sqlite3_escape_string($slite3, $_POST['message'])."', '".sqlite3_escape_string($slite3, $_SERVER['REMOTE_ADDR'])."');"); 
