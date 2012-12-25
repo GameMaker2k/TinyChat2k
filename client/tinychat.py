@@ -13,7 +13,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: tinychat.py - Last Update: 12/22/2012 Ver. 1.0.0 - Author: cooldude2k $
+    $FileInfo: tinychat.py - Last Update: 12/24/2012 Ver. 1.0.0 - Author: cooldude2k $
 '''
 
 import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64;
