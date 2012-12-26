@@ -92,6 +92,9 @@ $memberinfo = sqlite3_fetch_assoc($findmember);
 echo "{success:loginuser};"; exit(); }
 if($numrows>0) { echo "{error:loginuser};"; exit(); } }
 if($_GET['act']=="logout") {
+if(!isset($_SESSION['userid'])||!isset($_SESSION['username'])) { 
+	echo "{error:logoutuser};"; exit(); }
+if(isset($_SESSION['userid'])&&isset($_SESSION['username'])) { 
 if(file_exists("./sessions/".$roomname."/sess_".session_id())) {
 unlink("./sessions/".$roomname."/sess_".session_id()); } 
 setcookie(session_name(), "", time() - 42000);
@@ -99,14 +102,17 @@ setcookie(session_id(), "", time() - 42000);
 session_destroy();
 $_SESSION = array();
 echo "{success:logoutuser};";
-exit(); }
+exit(); } }
 if($_GET['act']=="message") { 
+if(!isset($_SESSION['userid'])||!isset($_SESSION['username'])||
+	!isset($_POST['message'])||!isset($_GET['room'])) { 
+	echo "{error:message};"; exit(); }
 if(isset($_SESSION['userid'])&&isset($_SESSION['username'])&&isset($_POST['message'])) {
 sqlite3_query($sqlite_tinychat, "INSERT INTO \"".$sqlprefix."messages\" (\"userid\", \"username\", \"timestamp\", \"message\", \"ip\") VALUES ('".sqlite3_escape_string($sqlite_tinychat, $_SESSION['userid'])."', '".sqlite3_escape_string($sqlite_tinychat, $_SESSION['username'])."', '".sqlite3_escape_string($sqlite_tinychat, get_microtime())."', '".sqlite3_escape_string($sqlite_tinychat, $_POST['message'])."', '".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."');"); 
-echo "{success:message};"; exit(); }
-if(!isset($_SESSION['userid'])||!isset($_SESSION['username'])||!isset($_POST['message'])) { 
-	echo "{error:message};"; exit(); } }
+echo "{success:message};"; exit(); } }
 if($_GET['act']=="view") { 
+if(!isset($_SESSION['userid'])||!isset($_SESSION['username'])||!isset($_GET['room'])) { 
+	echo "{error:message};"; exit(); }
 if(isset($_SESSION['userid'])&&isset($_SESSION['username'])) { 
 $findmember = sqlite3_query($sqlite_tinychat, "SELECT * FROM \"".$sqlprefix."members\" WHERE \"id\"=".sqlite3_escape_string($sqlite_tinychat, $_SESSION['userid']).";"); 
 $memberinfo = sqlite3_fetch_assoc($findmember); 
@@ -116,7 +122,6 @@ while ($messageinfo = sqlite3_fetch_assoc($getmessage)) {
 $cmessageid = $messageinfo['id'];
 echo $messageinfo['timestamp'].", ".$messageinfo['userid'].", \"".$messageinfo['username']."\", \"".base64_encode($messageinfo['message'])."\";\n"; } 
 if(isset($cmessageid)&&$cmessageid!=null) {
-sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, $cmessageid)." WHERE \"id\"=".$_SESSION['userid'].";"); } }
-if(!isset($_SESSION['userid'])||!isset($_SESSION['username'])) { echo "{error:message};"; exit(); } }
+sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, $cmessageid)." WHERE \"id\"=".$_SESSION['userid'].";"); } } }
 sqlite3_close($sqlite_tinychat);
 ?>
