@@ -41,8 +41,9 @@ chatproverinfo[1] = 1;
 chatproverinfo[2] = 0;
 chatproverinfo[3] = 0;
 chatproverinfo[4] = null;
+chatprofullname = chatproverinfo[0]+" "+chatproverinfo[1]+"."+chatproverinfo[2]+"."+chatproverinfo[3];
 userlogin = false;
-document.title = "TinyChat2k - Login";
+document.title = chatprofullname+" - Login";
 
 function getid(id) {
     var itm;
@@ -150,7 +151,7 @@ function showNewMessages(message) {
  </head>
 
  <body style="width: 100%; height: 100%; color: white; background: black;">
-<div id="logindiv" style="width: 100%; height: 100%;"><form method="post" id="loginform" name="loginform" action="#" onsubmit="if(getLogIn(document.loginform.username.value, document.loginform.userpass.value, document.loginform.gotoroom.value)==true) { document.title = 'TinyChat2k - '+document.loginform.gotoroom.value; toggletag('chatdiv'); userlogin = true; toggletag('logindiv'); } if(userlogin==true) { getNewMessages(document.loginform.gotoroom.value); } return false;">
+<div id="logindiv" style="width: 100%; height: 100%;"><form method="post" id="loginform" name="loginform" action="#" onsubmit="if(getLogIn(document.loginform.username.value, document.loginform.userpass.value, document.loginform.gotoroom.value)==true) { document.title = chatprofullname+' - '+document.loginform.gotoroom.value; toggletag('chatdiv'); userlogin = true; toggletag('logindiv'); } if(userlogin==true) { getNewMessages(document.loginform.gotoroom.value); } return false;">
 <label for="username">User Name: </label>
 <input style="border: black; color: skyblue; background: black;" type="text" name="username" id="username" /><br />
 <label for="userpass">Password: </label>

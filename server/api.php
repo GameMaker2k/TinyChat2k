@@ -35,7 +35,11 @@ if(function_exists("date_default_timezone_set")) {
 	@date_default_timezone_set("UTC"); }
 header("Content-Type: text/plain; charset=UTF-8");
 $chatproverinfo = array("TinyChat2k", 1, 0, 0, null);
+$chatprofullname = $chatproverinfo[0]." ".$chatproverinfo[1].".".$chatproverinfo[2].".".$chatproverinfo[3];
 $sqlite_busy_timeout = 2000;
+if(!isset($_GET['act'])) { $_GET['act'] = "view"; }
+if($_GET['act']=="check") { echo "{success:tinychat};"; exit(); }
+if($_GET['act']=="version") { echo $chatprofullname; exit(); }
 if(!isset($_GET['room'])) { $_GET['room'] = ""; }
 $_GET['room'] = preg_replace("/[^a-z0-9]/", "", strtolower($_GET['room']));
 $roomname = $_GET['room'];
@@ -46,7 +50,6 @@ session_save_path("./sessions/".$roomname."/");
 session_name($roomname);
 session_start();
 $sqlprefix = $roomname."_";
-if(!isset($_GET['act'])) { $_GET['act'] = "view"; }
 require("./sqlite.php");
 if($_GET['act']=="login") { 
 $findmember = sqlite3_query($sqlite_tinychat, "SELECT COUNT(*) AS count FROM \"".$sqlprefix."members\" WHERE \"name\"='".sqlite3_escape_string($sqlite_tinychat, $_POST['username'])."';"); 

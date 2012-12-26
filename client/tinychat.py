@@ -18,10 +18,12 @@
 
 import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64;
 
+chatproverinfo = ["TinyChat2k", 1, 0, 0, None];
+chatprofullname = chatproverinfo[0]+" "+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3]);
 if(sys.platform!="win32"):
- sys.stdout.write("\x1b]2;TinyChat2k - Login\x07");
+ sys.stdout.write("\x1b]2;"+chatprofullname+" - Login\x07");
 if(sys.platform=="win32"):
- os.system("title TinyChat2k - Login");
+ os.system("title "+chatprofullname+" - Login");
 if(len(sys.argv)<2):
  sys.exit();
 parseurl = re.findall("(.*)\#([\da-z]+)", sys.argv[1]);
@@ -40,7 +42,6 @@ mypass = getpass.getpass();
 mypasshash = hashlib.sha512(mypass.encode("utf-8")).hexdigest();
 chaturl = chatsiteurl;
 chathostname = getpass.getuser()+"@"+socket.gethostname();
-chatproverinfo = ["TinyChat2k", 1, 0, 0, None];
 if(sys.platform=="win32"):
  getwinver = sys.getwindowsversion();
  if(getwinver[3]==0):
@@ -55,12 +56,16 @@ if(sys.platform=="win32"):
 if(sys.platform!="win32"):
  chatua = "Mozilla/5.0 (compatible; "+chatproverinfo[0]+"/"+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3])+"; "+platform.system()+" "+platform.machine()+" "+platform.release()+"; +"+chathostname+")";
 if(sys.platform!="win32"):
- sys.stdout.write("\x1b]2;TinyChat2k - "+chatroomname+"\x07");
+ sys.stdout.write("\x1b]2;"+chatprofullname+" - "+chatroomname+"\x07");
 if(sys.platform=="win32"):
- os.system("title TinyChat2k - "+chatroomname);
+ os.system("title "+chatprofullname+" - "+chatroomname);
 tinychat_cj = cookielib.CookieJar();
 login_opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(tinychat_cj));
 login_opener.addheaders = [("Referer", ""+chaturl), ("User-Agent", chatua)];
+tinychatchk = login_opener.open(chaturl+"?act=check&room="+chatroomname);
+tinychatcheck = tinychatchk.read()[:];
+if(tinychatcheck!="{success:tinychat};"):
+ sys.exit();
 post_data = urllib.urlencode({'username': myusername, 'userpass' : mypasshash});
 tinychattxt = login_opener.open(chaturl+"?act=login&room="+chatroomname, post_data);
 signupcheck = tinychattxt.read()[:];

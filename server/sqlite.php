@@ -16,8 +16,11 @@
 */
 
 $ScriptFileName = basename($_SERVER['SCRIPT_NAME']);
-if ($ScriptFileName=="calendars.php"||$ScriptFileName=="/calendars.php") {
+if ($ScriptFileName=="sqlite.php"||$ScriptFileName=="/sqlite.php") {
+	ob_start();
+	header("Content-Type: text/plain; charset=UTF-8");
 	require("./index.php");
+	echo "{error:exit};";
 	exit(); }
 
 $sqlite_version = 3;
