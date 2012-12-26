@@ -20,7 +20,7 @@ import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2
 
 if(len(sys.argv)<2):
  sys.exit();
-parseurl = re.findall("(.*)\#(.*)", sys.argv[1]);
+parseurl = re.findall("(.*)\#([\da-z]+)", sys.argv[1]);
 parseurl = parseurl[0];
 chatsiteurl = parseurl[0];
 chatroomname = parseurl[1];
@@ -49,9 +49,9 @@ if(sys.platform!="win32"):
  chatua = "Mozilla/5.0 (compatible; "+chatproverinfo[0]+"/"+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3])+"; "+platform.system()+" "+platform.machine()+" "+platform.release()+"; +"+chathostname+")";
 tinychat_cj = cookielib.CookieJar();
 login_opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(tinychat_cj));
-login_opener.addheaders = [("Referer", ""+chaturl+"api.php"), ("User-Agent", chatua)];
+login_opener.addheaders = [("Referer", ""+chaturl), ("User-Agent", chatua)];
 post_data = urllib.urlencode({'username': myusername, 'userpass' : mypasshash});
-tinychattxt = login_opener.open(chaturl+"api.php?act=login&room="+chatroomname, post_data);
+tinychattxt = login_opener.open(chaturl+"?act=login&room="+chatroomname, post_data);
 signupcheck = tinychattxt.read()[:];
 if(signupcheck=="{error:room};"):
  sys.exit();
@@ -59,7 +59,7 @@ if(signupcheck=="{error:loginuser};"):
  sys.exit();
 if(signupcheck=="{warning:newuser};"):
  post_data = urllib.urlencode({'username': myusername, 'userpass': mypass});
- tinychattxt = login_opener.open(chaturl+"api.php?act=signup&room="+chatroomname, post_data);
+ tinychattxt = login_opener.open(chaturl+"?act=signup&room="+chatroomname, post_data);
  signupcheck = tinychattxt.read()[:];
 if(signupcheck=="{error:room};"):
  sys.exit();
@@ -96,7 +96,7 @@ def getnewmessages():
  global threadloopstop, refreshtime, login_opener;
  oldtimestamp = None;
  while threadloopstop==False:
-  tinychattxt = login_opener.open(chaturl+"api.php?act=view&room="+chatroomname);
+  tinychattxt = login_opener.open(chaturl+"?act=view&room="+chatroomname);
   chattext = tinychattxt.readlines();
   chatsize = len(chattext);
   chati = 0;
@@ -132,9 +132,9 @@ while(mymessagelc!="quit" and mymessagelc!="exit"):
  mymessagelc = mymessage.lower();
  if(mymessagelc!="quit" and mymessagelc!="exit"):
   post_data = urllib.urlencode({'message': mymessage});
-  tinychating = login_opener.open(chaturl+"api.php?act=message&room="+chatroomname, post_data);
+  tinychating = login_opener.open(chaturl+"?act=message&room="+chatroomname, post_data);
 threadloopstop=True;
 gnm.cancel();
 curses.endwin();
-tinychating = login_opener.open(chaturl+"api.php?act=logout");
+tinychating = login_opener.open(chaturl+"?act=logout");
 sys.exit();

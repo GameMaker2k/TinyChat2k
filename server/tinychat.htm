@@ -86,6 +86,7 @@ function getLogIn(username, userpass, gotoroom) {
 
 function showNewMessages(gotoroom) {
 	newmessage = null;
+	$('#chattext').append("<span style='color: green;'>message:<\/span> Hello "+document.loginform.username.value+" welcome to chat room: "+document.loginform.gotoroom.value+"<br />\n");
 	while(true==true) {
 		newmessage = getNewMessages(gotoroom);
 		if(newmessage!="") { 
