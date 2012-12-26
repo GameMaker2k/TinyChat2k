@@ -88,7 +88,7 @@ if($nummsgs>=1) {
 $getlastmsg = sqlite3_query($sqlite_tinychat, "SELECT * FROM \"".$sqlprefix."messages\" ORDER BY \"id\" DESC LIMIT 1;");
 $getlastmsgid = sqlite3_fetch_assoc($getlastmsg); }
 if($nummsgs<=0) { $getlastmsgid['id'] = "0"; }
-sqlite3_query($sqlite_tinychat, "INSERT INTO \"".$sqlprefix."members\" (\"name\", \"password\", \"joined\", \"lastactive\", \"lastmessageid\", \"validated\", \"bantime\", \"admin\", \"ip\") VALUES ('".sqlite3_escape_string($sqlite_tinychat, $_POST['username'])."', '".sqlite3_escape_string($sqlite_tinychat, hash("sha512", $_POST['userpass']))."', '".sqlite3_escape_string($sqlite_tinychat, time())."', '".sqlite3_escape_string($sqlite_tinychat, time())."', ".sqlite3_escape_string($sqlite_tinychat, $getlastmsgid['id']).", 'yes', 0, 'no', '".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."');"); 
+sqlite3_query($sqlite_tinychat, "INSERT INTO \"".$sqlprefix."members\" (\"name\", \"password\", \"joined\", \"lastactive\", \"lastmessageid\", \"validated\", \"bantime\", \"admin\", \"ip\") VALUES ('".sqlite3_escape_string($sqlite_tinychat, $_POST['username'])."', '".sqlite3_escape_string($sqlite_tinychat, $_POST['userpass'])."', '".sqlite3_escape_string($sqlite_tinychat, time())."', '".sqlite3_escape_string($sqlite_tinychat, time())."', ".sqlite3_escape_string($sqlite_tinychat, $getlastmsgid['id']).", 'yes', 0, 'no', '".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."');"); 
 $usersid = sqlite3_last_insert_rowid($sqlite_tinychat); 
 $findmember = sqlite3_query($sqlite_tinychat, "SELECT * FROM \"".$sqlprefix."members\" WHERE \"name\"='".sqlite3_escape_string($sqlite_tinychat, $_POST['username'])."';"); 
 $memberinfo = sqlite3_fetch_assoc($findmember); 

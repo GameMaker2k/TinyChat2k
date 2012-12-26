@@ -98,7 +98,7 @@ function getSignUp(username, userpass, gotoroom) {
     $.ajax({
         url: "./api.php?act=login&room=" + encodeURIComponent(gotoroom),
         type: "post",
-        data: "username=" + encodeURIComponent(username) + "&userpass=" + encodeURIComponent(userpass),
+        data: "username=" + encodeURIComponent(username) + "&userpass=" + encodeURIComponent(CryptoJS.SHA512(userpass)),
         async: false,
         success: function(data) {
             result = data;

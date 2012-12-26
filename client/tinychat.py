@@ -20,6 +20,7 @@ import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2
 
 chatproverinfo = ["TinyChat2k", 1, 0, 0, None];
 chatprofullname = chatproverinfo[0]+" "+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3]);
+chatprouaname = chatproverinfo[0]+"/"+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3]);
 if(sys.platform!="win32"):
  sys.stdout.write("\x1b]2;"+chatprofullname+" - Login\x07");
 if(sys.platform=="win32"):
@@ -52,9 +53,9 @@ if(sys.platform=="win32"):
   mywindowstype = "Windows NT "+str(getwinver[0])+" "+str(getwinver[1]);
  if(getwinver[3]==3):
   mywindowstype = "Windows CE "+str(getwinver[0])+" "+str(getwinver[1]);
- chatua = "Mozilla/5.0 (compatible; "+chatproverinfo[0]+"/"+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3])+"; "+mywindowstype+"; +"+chathostname+")";
+ chatua = "Mozilla/5.0 (compatible; "+chatprouaname+"; "+mywindowstype+"; +"+chathostname+")";
 if(sys.platform!="win32"):
- chatua = "Mozilla/5.0 (compatible; "+chatproverinfo[0]+"/"+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3])+"; "+platform.system()+" "+platform.machine()+" "+platform.release()+"; +"+chathostname+")";
+ chatua = "Mozilla/5.0 (compatible; "+chatprouaname+"; "+platform.system()+" "+platform.machine()+" "+platform.release()+"; +"+chathostname+")";
 if(sys.platform!="win32"):
  sys.stdout.write("\x1b]2;"+chatprofullname+" - "+chatroomname+"\x07");
 if(sys.platform=="win32"):
@@ -74,7 +75,7 @@ if(signupcheck=="{error:room};"):
 if(signupcheck=="{error:loginuser};"):
  sys.exit();
 if(signupcheck=="{warning:newuser};"):
- post_data = urllib.urlencode({'username': myusername, 'userpass': mypass});
+ post_data = urllib.urlencode({'username': myusername, 'userpass': mypasshash});
  tinychattxt = login_opener.open(chaturl+"?act=signup&room="+chatroomname, post_data);
  signupcheck = tinychattxt.read()[:];
 if(signupcheck=="{error:room};"):
