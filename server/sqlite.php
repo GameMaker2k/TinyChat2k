@@ -12,7 +12,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: sqlite.php - Last Update: 12/25/2012 Ver. 1.0.0 - Author: cooldude2k $
+    $FileInfo: sqlite.php - Last Update: 12/26/2012 Ver. 1.0.0 - Author: cooldude2k $
 */
 
 $ScriptFileName = basename($_SERVER['SCRIPT_NAME']);
@@ -82,6 +82,8 @@ function sqlite3_last_insert_rowid($dbhandle) {
 function sqlite3_libversion($dbhandle) {
 	$dbversion = sqlite_libversion();
 	return $dbversion; } }
+function get_microtime() {
+	return array_sum(explode(" ", microtime())); }
 if($_GET['act']=="login"&&(!isset($_POST['username'])||!isset($_POST['userpass']))) { 
 	echo "{error:loginuser};"; exit(); }
 if($_GET['act']=="signup"&&(!isset($_POST['username'])||!isset($_POST['userpass']))) { 
@@ -118,7 +120,7 @@ $query = "CREATE TABLE \"".$sqlprefix."messages\" (\n".
 "  \"id\" INTEGER PRIMARY KEY NOT NULL,\n".
 "  \"userid\" INTEGER NOT NULL default '0',\n".
 "  \"username\" VARCHAR(150) NOT NULL default '',\n".
-"  \"timestamp\" INTEGER NOT NULL default '0',\n".
+"  \"timestamp\" FLOAT NOT NULL default '0',\n".
 "  \"message\" TEXT NOT NULL,\n".
 "  \"ip\" VARCHAR(50) NOT NULL default ''\n".
 ");";

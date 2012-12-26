@@ -13,7 +13,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: tinychat.py - Last Update: 12/24/2012 Ver. 1.0.0 - Author: cooldude2k $
+    $FileInfo: tinychat.py - Last Update: 12/26/2012 Ver. 1.0.0 - Author: cooldude2k $
 '''
 
 import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64;
@@ -105,7 +105,6 @@ refreshtime=1;
 threadloopstop=False;
 def getnewmessages():
  global threadloopstop, refreshtime, login_opener;
- oldtimestamp = None;
  while threadloopstop==False:
   tinychattxt = login_opener.open(chaturl+"?act=view&room="+chatroomname);
   chattext = tinychattxt.readlines();
@@ -113,8 +112,8 @@ def getnewmessages():
   chati = 0;
   chatwin.refresh();
   while(chati<chatsize): 
-   chatarray = re.findall("([0-9]+)\, ([0-9]+)\, \"([\da-z]+)\"\, \"(.*)\";", chattext[chati]);
-   if(re.findall("([0-9]+)\, ([0-9]+)\, \"([\da-z]+)\"\, \"(.*)\";", chattext[chati])):
+   chatarray = re.findall("([0-9\.]+)\, ([0-9]+)\, \"([\da-z]+)\"\, \"(.*)\";", chattext[chati]);
+   if(re.findall("([0-9\.]+)\, ([0-9]+)\, \"([\da-z]+)\"\, \"(.*)\";", chattext[chati])):
     chatarray = chatarray[0];
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
     chatwin.addstr(chatarray[2]+": ", curses.color_pair(2));

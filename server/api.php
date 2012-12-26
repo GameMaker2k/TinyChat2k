@@ -102,7 +102,7 @@ echo "{success:logoutuser};";
 exit(); }
 if($_GET['act']=="message") { 
 if(isset($_SESSION['userid'])&&isset($_SESSION['username'])&&isset($_POST['message'])) {
-sqlite3_query($sqlite_tinychat, "INSERT INTO \"".$sqlprefix."messages\" (\"userid\", \"username\", \"timestamp\", \"message\", \"ip\") VALUES ('".sqlite3_escape_string($sqlite_tinychat, $_SESSION['userid'])."', '".sqlite3_escape_string($sqlite_tinychat, $_SESSION['username'])."', '".sqlite3_escape_string($sqlite_tinychat, time())."', '".sqlite3_escape_string($sqlite_tinychat, $_POST['message'])."', '".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."');"); 
+sqlite3_query($sqlite_tinychat, "INSERT INTO \"".$sqlprefix."messages\" (\"userid\", \"username\", \"timestamp\", \"message\", \"ip\") VALUES ('".sqlite3_escape_string($sqlite_tinychat, $_SESSION['userid'])."', '".sqlite3_escape_string($sqlite_tinychat, $_SESSION['username'])."', '".sqlite3_escape_string($sqlite_tinychat, get_microtime())."', '".sqlite3_escape_string($sqlite_tinychat, $_POST['message'])."', '".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."');"); 
 echo "{success:message};"; exit(); }
 if(!isset($_SESSION['userid'])||!isset($_SESSION['username'])||!isset($_POST['message'])) { 
 	echo "{error:message};"; exit(); } }
@@ -110,7 +110,7 @@ if($_GET['act']=="view") {
 if(isset($_SESSION['userid'])&&isset($_SESSION['username'])) { 
 $findmember = sqlite3_query($sqlite_tinychat, "SELECT * FROM \"".$sqlprefix."members\" WHERE \"id\"=".sqlite3_escape_string($sqlite_tinychat, $_SESSION['userid']).";"); 
 $memberinfo = sqlite3_fetch_assoc($findmember); 
-$getmessage = sqlite3_query($sqlite_tinychat, "SELECT * FROM \"".$sqlprefix."messages\" WHERE \"id\">".sqlite3_escape_string($sqlite_tinychat, $memberinfo['lastmessageid'])." AND userid<>".$_SESSION['userid'].";");
+$getmessage = sqlite3_query($sqlite_tinychat, "SELECT * FROM \"".$sqlprefix."messages\" WHERE \"id\">".sqlite3_escape_string($sqlite_tinychat, $memberinfo['lastmessageid'])." AND userid<>".$_SESSION['userid']." ORDER BY \"timestamp\" ASC;");
 $cmessageid = null;
 while ($messageinfo = sqlite3_fetch_assoc($getmessage)) {
 $cmessageid = $messageinfo['id'];

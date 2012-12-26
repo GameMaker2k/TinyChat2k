@@ -136,7 +136,7 @@ function showNewMessages(message) {
         chati = 0;
         getmessage_part = null;
         while (chati < chatsize) {
-            getmessage_part = message_part[chati].match(/([0-9]+)\, ([0-9]+)\, \"([0-9a-z]+)\"\, \"(.*)\";/);
+            getmessage_part = message_part[chati].match(/([0-9\.]+)\, ([0-9]+)\, \"([0-9a-z]+)\"\, \"(.*)\";/);
             $('#chattext').append("<span style='color: green;'>" + getmessage_part[3] + ":<\/span> " + base64_decode(getmessage_part[4]) + "<br />\n");
             $('#chattext').prop({
                 scrollTop: $('#chattext').prop('scrollHeight')
