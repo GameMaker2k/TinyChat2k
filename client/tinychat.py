@@ -26,13 +26,14 @@ if(len(sys.argv)<2):
  sys.exit();
 parseurl = re.findall("(.*)\#([\da-z]+)", sys.argv[1]);
 parseurl = parseurl[0];
-chatsiteurl = parseurl[0];
-chatroomname = parseurl[1];
+chatsiteurl = parseurl[0].strip();
+chatroomname = parseurl[1].strip();
 if(len(re.findall("([\da-z]+)", chatroomname))<1):
  chatroomname = str(raw_input("Chat Room: ")).decode("utf-8");
  if(len(re.findall("([\da-z]+)", chatroomname))<1):
   sys.exit();
 myusername = str(raw_input("User: ")).decode("utf-8");
+myusername = myusername.strip();
 if(len(re.findall("([\da-z]+)", myusername))<1):
  sys.exit();
 mypass = getpass.getpass();
@@ -133,14 +134,15 @@ while(mymessagelc!="quit" and mymessagelc!="exit"):
   mymessage = getstr_prompt(inputwin, myusername+": ");
  except Exception:
   break;
- curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
- chatwin.addstr(myusername+": ", curses.color_pair(2));
- curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK);
- chatwin.addstr(mymessage+"\n", curses.color_pair(3));
- chatwin.refresh();
- inputwin.refresh();
+ mymessage = mymessage.strip();
  mymessagelc = mymessage.lower();
- if(mymessagelc!="quit" and mymessagelc!="exit"):
+ if(mymessagelc!="quit" and mymessagelc!="exit" and mymessagelc!="" and mymessagelc!=None):
+  curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
+  chatwin.addstr(myusername+": ", curses.color_pair(2));
+  curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK);
+  chatwin.addstr(mymessage+"\n", curses.color_pair(3));
+  chatwin.refresh();
+  inputwin.refresh();
   post_data = urllib.urlencode({'message': mymessage});
   tinychating = login_opener.open(chaturl+"?act=message&room="+chatroomname, post_data);
 threadloopstop=True;

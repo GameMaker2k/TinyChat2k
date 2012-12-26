@@ -2,113 +2,155 @@
 <html xmlns="http://www.w3.org/1999/xhtml" style="width: 100%; height: 100%;">
  <head>
   <title> TinyChat2k </title>
-  <meta name="generator" content="editplus" />
-  <meta name="author" content="" />
-  <meta name="keywords" content="" />
-  <meta name="description" content="" />
-<script type="text/javascript" src="./javascript/jquery.js"></script>
-<script type="text/javascript" src="./javascript/base64_decode.js"></script>
-<script type="text/javascript" src="./javascript/hash/sha512.js"></script>
+  <meta http-equiv="Content-Language" content="en" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <!--<meta http-equiv="X-UA-Compatible" content="IE=Edge" />-->
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1" />
+  <meta name="generator" content="TinyChat2k" />
+  <meta name="author" content="Cool Dude 2k @ Game Maker 2k" />
+  <meta name="keywords" content="TinyChat2k, Tiny Chat 2k, TinyChat, Tiny Chat" />
+  <meta name="description" content="TinyChat2k HTML Client" />
+  <meta name="resource-type" content="document" />
+  <meta name="distribution" content="global" />
+  <script type="text/javascript" src="./javascript/jquery.js"></script>
+  <script type="text/javascript" src="./javascript/base64_decode.js"></script>
+  <script type="text/javascript" src="./javascript/hash/sha512.js"></script>
 <script type="text/javascript">
 <!--
+/*
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the Revised BSD License.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    Revised BSD License for more details.
+
+    Copyright 2012 Cool Dude 2k - http://idb.berlios.de/
+    Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
+    Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
+
+    $FileInfo: tinychat.htm - Last Update: 12/26/2012 Ver. 1.0.0 - Author: cooldude2k $
+*/
+
+chatproverinfo = new Array();
+chatproverinfo[0] = "TinyChat2k";
+chatproverinfo[1] = 1;
+chatproverinfo[2] = 0;
+chatproverinfo[3] = 0;
+chatproverinfo[4] = null;
 userlogin = false;
 document.title = "TinyChat2k - Login";
+
 function getid(id) {
-var itm;
-itm = document.getElementById(id);
-return itm; }
+    var itm;
+    itm = document.getElementById(id);
+    return itm;
+}
 
 function toggletag(id) {
-var itm;
-itm = document.getElementById(id);
-if (itm.style.display == "none") {
-itm.style.display = ""; }
-else {
-itm.style.display = "none"; } }
+    var itm;
+    itm = document.getElementById(id);
+    if (itm.style.display == "none") {
+        itm.style.display = "";
+    }
+    else {
+        itm.style.display = "none";
+    }
+}
 
 function getNewMessages(gotoroom) {
-    var result="";
+    var result = "";
     $.ajax({
-      url:"./api.php?act=view&room=tinychat",
-      type: "get",
-      async: false,  
-      success:function(data) {
-         result = data; 
-      }
-   });
-   return result;
+        url: "./api.php?act=view&room=tinychat",
+        type: "get",
+        async: true,
+        success: function(data) {
+            if (data != "") {
+                alert(data);
+                showNewMessages(data);
+            }
+            getNewMessages(gotoroom);
+        }
+    });
+    return result;
 }
 
 function sendMessages(message, gotoroom) {
-    var result="";
+    var result = "";
     $.ajax({
-      url:"./api.php?act==message&room="+encodeURIComponent(gotoroom),
-      type: "post",
-      data: "message="+encodeURIComponent(message),
-      async: false,  
-      success:function(data) {
-         result = data; 
-      }
-   });
-   return result;
+        url: "./api.php?act==message&room=" + encodeURIComponent(gotoroom),
+        type: "post",
+        data: "message=" + encodeURIComponent(message),
+        async: false,
+        success: function(data) {
+            result = data;
+        }
+    });
+    return result;
 }
 
 function getSignUp(username, userpass, gotoroom) {
-    var result="";
+    var result = "";
     $.ajax({
-      url:"./api.php?act=login&room="+encodeURIComponent(gotoroom),
-      type: "post",
-      data: "username="+encodeURIComponent(username)+"&userpass="+encodeURIComponent(userpass),
-      async: false,  
-      success:function(data) {
-         result = data; 
-      }
-   });
-   return result;
+        url: "./api.php?act=login&room=" + encodeURIComponent(gotoroom),
+        type: "post",
+        data: "username=" + encodeURIComponent(username) + "&userpass=" + encodeURIComponent(userpass),
+        async: false,
+        success: function(data) {
+            result = data;
+        }
+    });
+    return result;
 }
 
 function getLogIn(username, userpass, gotoroom) {
-    var result="";
+    var result = "";
     $.ajax({
-      url:"./api.php?act=login&room="+encodeURIComponent(gotoroom),
-      type: "post",
-      data: "username="+encodeURIComponent(username)+"&userpass="+encodeURIComponent(CryptoJS.SHA512(userpass)),
-      async: false,  
-      success:function(data) {
-         result = data; 
-      }
-   });
-   if(result=="{warning:newuser};") { result = getSignUp(username, userpass, gotoroom); }
-   if(result=="{error:loginuser};") { return false; }
-   if(result=="{success:loginuser};") { return true; }
-   return false;
+        url: "./api.php?act=login&room=" + encodeURIComponent(gotoroom),
+        type: "post",
+        data: "username=" + encodeURIComponent(username) + "&userpass=" + encodeURIComponent(CryptoJS.SHA512(userpass)),
+        async: false,
+        success: function(data) {
+            result = data;
+        }
+    });
+    if (result == "{warning:newuser};") {
+        result = getSignUp(username, userpass, gotoroom);
+    }
+    if (result == "{error:loginuser};") {
+        return false;
+    }
+    if (result == "{success:loginuser};") {
+        return true;
+    }
+    return false;
 }
 
-function showNewMessages(gotoroom) {
-	newmessage = null;
-	$('#chattext').append("<span style='color: green;'>message:<\/span> Hello "+document.loginform.username.value+" welcome to chat room: "+document.loginform.gotoroom.value+"<br />\n");
-	while(true==true) {
-		newmessage = getNewMessages(gotoroom);
-		if(newmessage!="") { 
-			newmessage_part = newmessage.split("\n");
-			chatsize = newmessage_part.length - 1;
-			chati = 0;
-			getmessage_part = null;
-			while(chati<chatsize) {
-				getmessage_part = newmessage_part[chati].match(/([0-9]+)\, ([0-9]+)\, \"([0-9a-z]+)\"\, \"(.*)\";/); 
-				$('#chattext').append("<span style='color: green;'>"+getmessage_part[3]+":<\/span> "+base64_decode(getmessage_part[4])+"<br />\n");
-				++chati; 
-			}
-		} 
-	}
+function showNewMessages(message) {
+    if (message != "") {
+        message_part = message.split("\n");
+        chatsize = message_part.length - 1;
+        chati = 0;
+        getmessage_part = null;
+        while (chati < chatsize) {
+            getmessage_part = message_part[chati].match(/([0-9]+)\, ([0-9]+)\, \"([0-9a-z]+)\"\, \"(.*)\";/);
+            $('#chattext').append("<span style='color: green;'>" + getmessage_part[3] + ":<\/span> " + base64_decode(getmessage_part[4]) + "<br />\n");
+            $('#chattext').prop({
+                scrollTop: $('#chattext').prop('scrollHeight')
+            });
+            ++chati;
+        }
+    }
 }
-//$("#messages").animate({scrollTop: $("#messages").height()}, 300);
 //-->
 </script>
  </head>
 
  <body style="width: 100%; height: 100%; color: white; background: black;">
-<div id="logindiv" style="width: 100%; height: 100%;"><form method="post" id="loginform" name="loginform" action="#" onsubmit="if(getLogIn(document.loginform.username.value, document.loginform.userpass.value, document.loginform.gotoroom.value)==true) { document.title = 'TinyChat2k - '+document.loginform.gotoroom.value; toggletag('chatdiv'); userlogin = true; toggletag('logindiv'); } if(userlogin==true) { showNewMessages(document.loginform.gotoroom.value); } return false;">
+<div id="logindiv" style="width: 100%; height: 100%;"><form method="post" id="loginform" name="loginform" action="#" onsubmit="if(getLogIn(document.loginform.username.value, document.loginform.userpass.value, document.loginform.gotoroom.value)==true) { document.title = 'TinyChat2k - '+document.loginform.gotoroom.value; toggletag('chatdiv'); userlogin = true; toggletag('logindiv'); } if(userlogin==true) { getNewMessages(document.loginform.gotoroom.value); } return false;">
 <label for="username">User Name: </label>
 <input style="border: black; color: skyblue; background: black;" type="text" name="username" id="username" /><br />
 <label for="userpass">Password: </label>
@@ -121,7 +163,6 @@ function showNewMessages(gotoroom) {
 <div id="chatdiv" style="display: none; width: 100%; height: 100%; vertical-align: middle;">
 <div id="chattext" style="color: white; background: black; width: 100%; height: 95%; overflow-x: hidden; overflow-y: scroll;"></div>
 </div>
-
 
  </body>
 </html>

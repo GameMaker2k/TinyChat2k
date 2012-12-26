@@ -12,7 +12,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: api.php - Last Update: 12/25/2012 Ver. 1.0.0 - Author: cooldude2k $
+    $FileInfo: api.php - Last Update: 12/26/2012 Ver. 1.0.0 - Author: cooldude2k $
 */
 
 ob_start();
