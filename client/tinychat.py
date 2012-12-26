@@ -18,6 +18,10 @@
 
 import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64;
 
+if(sys.platform!="win32"):
+ sys.stdout.write("\x1b]2;TinyChat2k - Login\x07");
+if(sys.platform=="win32"):
+ os.system("title TinyChat2k - Login");
 if(len(sys.argv)<2):
  sys.exit();
 parseurl = re.findall("(.*)\#([\da-z]+)", sys.argv[1]);
@@ -25,7 +29,9 @@ parseurl = parseurl[0];
 chatsiteurl = parseurl[0];
 chatroomname = parseurl[1];
 if(len(re.findall("([\da-z]+)", chatroomname))<1):
- sys.exit();
+ chatroomname = str(raw_input("Chat Room: ")).decode("utf-8");
+ if(len(re.findall("([\da-z]+)", chatroomname))<1):
+  sys.exit();
 myusername = str(raw_input("User: ")).decode("utf-8");
 if(len(re.findall("([\da-z]+)", myusername))<1):
  sys.exit();
@@ -47,6 +53,10 @@ if(sys.platform=="win32"):
  chatua = "Mozilla/5.0 (compatible; "+chatproverinfo[0]+"/"+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3])+"; "+mywindowstype+"; +"+chathostname+")";
 if(sys.platform!="win32"):
  chatua = "Mozilla/5.0 (compatible; "+chatproverinfo[0]+"/"+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3])+"; "+platform.system()+" "+platform.machine()+" "+platform.release()+"; +"+chathostname+")";
+if(sys.platform!="win32"):
+ sys.stdout.write("\x1b]2;TinyChat2k - "+chatroomname+"\x07");
+if(sys.platform=="win32"):
+ os.system("title TinyChat2k - "+chatroomname);
 tinychat_cj = cookielib.CookieJar();
 login_opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(tinychat_cj));
 login_opener.addheaders = [("Referer", ""+chaturl), ("User-Agent", chatua)];
