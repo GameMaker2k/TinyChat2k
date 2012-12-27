@@ -18,10 +18,15 @@
 
 import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64;
 
+chatproverinfo = ["TinyChat2k", 1, 0, 0, None];
 gettermtype=None;
 if(sys.platform!="win32"):
  gettermtype=os.getenv('TERM');
-chatproverinfo = ["TinyChat2k", 1, 0, 0, None];
+ os.popen("stty sane");
+ os.popen("clear");
+ os.popen("reset");
+if(sys.platform=="win32"):
+ os.popen("cls");
 chatprofullname = chatproverinfo[0]+" "+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3]);
 chatprouaname = chatproverinfo[0]+"/"+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3]);
 if(sys.platform!="win32" and gettermtype!="linux"):
@@ -30,15 +35,24 @@ if(sys.platform=="win32"):
  os.system("title "+chatprofullname+" - Login");
 if(len(sys.argv)<2):
  sys.exit();
-parseurl = re.findall("(.*)\#([\da-z]+)", sys.argv[1]);
-parseurl = parseurl[0];
-chatsiteurl = parseurl[0].strip();
-chatroomname = parseurl[1].strip();
-if(len(re.findall("([\da-z]+)", chatroomname))<1):
- chatroomname = str(raw_input("Chat Room: ")).decode("utf-8");
+if(re.findall("(.*)\#([\da-z]+)", sys.argv[1])):
+ parseurl = re.findall("(.*)\#([\da-z]+)", sys.argv[1]);
+ parseurl = parseurl[0];
+ chatsiteurl = parseurl[0].strip();
+ chatsiteurl = chatsiteurl.replace("#", "");
+ chatroomname = parseurl[1].strip();
+ chatroomname = chatroomname.replace("#", "");
  if(len(re.findall("([\da-z]+)", chatroomname))<1):
   sys.exit();
-myusername = str(raw_input("User: ")).decode("utf-8");
+if(not re.findall("(.*)\#([\da-z]+)", sys.argv[1])):
+ chatsiteurl = sys.argv[1].strip();
+ chatsiteurl = chatsiteurl.replace("#", "");
+ chatroomname = str(raw_input("Chat Room: ")).decode("utf-8");
+ chatroomname = chatroomname.strip();
+ chatroomname = chatroomname.replace("#", "");
+ if(len(re.findall("([\da-z]+)", chatroomname))<1):
+  sys.exit();
+myusername = str(raw_input("User Name: ")).decode("utf-8");
 myusername = myusername.strip();
 if(len(re.findall("([\da-z]+)", myusername))<1):
  sys.exit();
