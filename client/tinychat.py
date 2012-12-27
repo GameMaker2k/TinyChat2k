@@ -13,7 +13,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: tinychat.py - Last Update: 12/26/2012 Ver. 1.0.0 - Author: cooldude2k $
+    $FileInfo: tinychat.py - Last Update: 12/27/2012 Ver. 1.0.0 - Author: cooldude2k $
 '''
 
 import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64;
@@ -29,7 +29,7 @@ if(sys.platform=="win32"):
  os.popen("cls");
 chatprofullname = chatproverinfo[0]+" "+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3]);
 chatprouaname = chatproverinfo[0]+"/"+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3]);
-if(sys.platform!="win32" and gettermtype!="linux"):
+if(sys.platform!="win32" and gettermtype!="linux" and gettermtype!="bsdos" and gettermtype!="freebsd" and gettermtype!="netbsd"):
  sys.stdout.write("\x1b]2;"+chatprofullname+" - Login\x07");
 if(sys.platform=="win32"):
  os.system("title "+chatprofullname+" - Login");
@@ -73,7 +73,7 @@ if(sys.platform=="win32"):
  chatua = "Mozilla/5.0 (compatible; "+chatprouaname+"; "+mywindowstype+"; +"+chathostname+")";
 if(sys.platform!="win32"):
  chatua = "Mozilla/5.0 (compatible; "+chatprouaname+"; "+platform.system()+" "+platform.machine()+" "+platform.release()+"; +"+chathostname+")";
-if(sys.platform!="win32" and gettermtype!="linux"):
+if(sys.platform!="win32" and gettermtype!="linux" and gettermtype!="bsdos" and gettermtype!="freebsd" and gettermtype!="netbsd"):
  sys.stdout.write("\x1b]2;"+chatprofullname+" - "+chatroomname+"\x07");
 if(sys.platform=="win32"):
  os.system("title "+chatprofullname+" - "+chatroomname);
