@@ -18,10 +18,13 @@
 
 import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64;
 
+gettermtype=None;
+if(sys.platform!="win32"):
+ gettermtype=os.getenv('TERM');
 chatproverinfo = ["TinyChat2k", 1, 0, 0, None];
 chatprofullname = chatproverinfo[0]+" "+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3]);
 chatprouaname = chatproverinfo[0]+"/"+str(chatproverinfo[1])+"."+str(chatproverinfo[2])+"."+str(chatproverinfo[3]);
-if(sys.platform!="win32"):
+if(sys.platform!="win32" and gettermtype!="linux"):
  sys.stdout.write("\x1b]2;"+chatprofullname+" - Login\x07");
 if(sys.platform=="win32"):
  os.system("title "+chatprofullname+" - Login");
@@ -54,9 +57,9 @@ if(sys.platform=="win32"):
  if(getwinver[3]==3):
   mywindowstype = "Windows CE "+str(getwinver[0])+" "+str(getwinver[1]);
  chatua = "Mozilla/5.0 (compatible; "+chatprouaname+"; "+mywindowstype+"; +"+chathostname+")";
-if(sys.platform!="win32"):
+if(sys.platform!="win32" and gettermtype!="linux"):
  chatua = "Mozilla/5.0 (compatible; "+chatprouaname+"; "+platform.system()+" "+platform.machine()+" "+platform.release()+"; +"+chathostname+")";
-if(sys.platform!="win32"):
+if(sys.platform!="win32" and gettermtype!="linux"):
  sys.stdout.write("\x1b]2;"+chatprofullname+" - "+chatroomname+"\x07");
 if(sys.platform=="win32"):
  os.system("title "+chatprofullname+" - "+chatroomname);
