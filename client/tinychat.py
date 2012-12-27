@@ -57,7 +57,7 @@ if(sys.platform=="win32"):
  if(getwinver[3]==3):
   mywindowstype = "Windows CE "+str(getwinver[0])+" "+str(getwinver[1]);
  chatua = "Mozilla/5.0 (compatible; "+chatprouaname+"; "+mywindowstype+"; +"+chathostname+")";
-if(sys.platform!="win32" and gettermtype!="linux"):
+if(sys.platform!="win32"):
  chatua = "Mozilla/5.0 (compatible; "+chatprouaname+"; "+platform.system()+" "+platform.machine()+" "+platform.release()+"; +"+chathostname+")";
 if(sys.platform!="win32" and gettermtype!="linux"):
  sys.stdout.write("\x1b]2;"+chatprofullname+" - "+chatroomname+"\x07");
@@ -157,4 +157,10 @@ threadloopstop=True;
 gnm.cancel();
 curses.endwin();
 tinychating = login_opener.open(chaturl+"?act=logout");
+if(sys.platform=="win32"):
+ os.popen("cls");
+if(sys.platform!="win32"):
+ os.popen("stty sane");
+ os.popen("clear");
+ os.popen("reset");
 sys.exit();
