@@ -12,7 +12,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: api.php - Last Update: 12/26/2012 Ver. 1.0.0 - Author: cooldude2k $
+    $FileInfo: api.php - Last Update: 12/27/2012 Ver. 1.0.0 - Author: cooldude2k $
 */
 
 ob_start();
@@ -21,10 +21,13 @@ ob_start();
 @ini_set("display_errors", false);
 @ini_set("report_memleaks", false);
 @ini_set("display_startup_errors", false);
+@ini_set("docref_ext", "");
+@ini_set("docref_root", "http://php.net/");
 if(!defined("E_DEPRECATED")) { define("E_DEPRECATED", 0); }
 @error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
 @ini_set("date.timezone","UTC"); 
 @ini_set("ignore_user_abort", 1);
+@set_time_limit(0); @ignore_user_abort(true);
 @ini_set("url_rewriter.tags",""); 
 @ini_set('zend.ze1_compatibility_mode', 0);
 @ini_set("session.use_cookies", true);
@@ -33,6 +36,10 @@ if(!defined("E_DEPRECATED")) { define("E_DEPRECATED", 0); }
 @ini_set("zlib.output_compression_level", -1);
 if(function_exists("date_default_timezone_set")) { 
 	@date_default_timezone_set("UTC"); }
+$website_url = null;
+if($website_url==null||$website_url=="") {
+$website_url = $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/"; }
+$website_url_info = parse_url($website_url);
 header("Content-Type: text/plain; charset=UTF-8");
 $chatproverinfo = array("TinyChat2k", 1, 0, 0, null);
 $chatprofullname = $chatproverinfo[0]." ".$chatproverinfo[1].".".$chatproverinfo[2].".".$chatproverinfo[3];
@@ -46,7 +53,14 @@ $roomname = $_GET['room'];
 if($roomname=="") { echo "{error:room};"; exit(); }
 if(!file_exists("./sessions/")) { mkdir("./sessions/"); }
 if(!file_exists("./sessions/".$roomname."/")) { mkdir("./sessions/".$roomname."/"); }
+session_cache_limiter("private, no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0");
+header("Cache-Control: private, no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0");
+header("Pragma: private, no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0");
+header("Date: ".gmdate("D, d M Y H:i:s")." GMT");
+header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT");
+header("Expires: ".gmdate("D, d M Y H:i:s")." GMT");
 session_save_path("./sessions/".$roomname."/");
+session_set_cookie_params(0, $website_url_info['path'], $website_url_info['host']);
 session_name($roomname);
 session_start();
 $sqlprefix = $roomname."_";
@@ -72,8 +86,9 @@ $_SESSION['userid'] = $memberinfo['id'];
 $_SESSION['username'] = $memberinfo['name'];
 echo "{success:loginuser};"; exit(); }
 if($_POST['userpass']!=$memberinfo['password']) {
-setcookie(session_name(), "", time() - 42000);
-setcookie(session_id(), "", time() - 42000);
+$_SESSION = array();
+setcookie(session_name(), "", time() - 42000, $website_url_info['path'], $website_url_info['host']);
+setcookie(session_id(), "", time() - 42000, $website_url_info['path'], $website_url_info['host']);
 session_destroy();
 echo "{error:loginuser};"; exit(); } } }
 if($_GET['act']=="signup") {
@@ -100,10 +115,10 @@ if(!isset($_SESSION['userid'])||!isset($_SESSION['username'])) {
 if(isset($_SESSION['userid'])&&isset($_SESSION['username'])) { 
 if(file_exists("./sessions/".$roomname."/sess_".session_id())) {
 unlink("./sessions/".$roomname."/sess_".session_id()); } 
-setcookie(session_name(), "", time() - 42000);
-setcookie(session_id(), "", time() - 42000);
-session_destroy();
 $_SESSION = array();
+setcookie(session_name(), "", time() - 42000, $website_url_info['path'], $website_url_info['host']);
+setcookie(session_id(), "", time() - 42000, $website_url_info['path'], $website_url_info['host']);
+session_destroy();
 echo "{success:logoutuser};";
 exit(); } }
 if($_GET['act']=="message") { 
