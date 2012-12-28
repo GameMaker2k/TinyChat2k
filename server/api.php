@@ -34,8 +34,19 @@ if(!defined("E_DEPRECATED")) { define("E_DEPRECATED", 0); }
 @ini_set("session.use_only_cookies", true);
 @ini_set("zlib.output_compression", false);
 @ini_set("zlib.output_compression_level", -1);
-ini_set("session.hash_function", "sha512");
-ini_set("session.hash_bits_per_character", "6");
+@ini_set("session.hash_function", "sha512");
+@ini_set("session.hash_bits_per_character", "6");
+if(substr(php_uname("s"), 0, 7)!="Windows"&&
+	file_exists("/dev/urandom")==true) {
+	@ini_set("session.entropy_file", "/dev/urandom");
+	//@ini_set("session.entropy_length", "512");
+	@ini_set("session.entropy_length", "1024"); }
+if(substr(php_uname("s"), 0, 7)!="Windows"&&
+	file_exists("/dev/urandom")==false&&
+	file_exists("/dev/random")==true) {
+	@ini_set("session.entropy_file", "/dev/random");
+	//@ini_set("session.entropy_length", "512");
+	@ini_set("session.entropy_length", "1024"); }
 if(function_exists("date_default_timezone_set")) { 
 	@date_default_timezone_set("UTC"); }
 $website_url = null;
