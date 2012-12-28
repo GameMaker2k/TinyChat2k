@@ -12,7 +12,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: api.php - Last Update: 12/27/2012 Ver. 1.0.0 - Author: cooldude2k $
+    $FileInfo: api.php - Last Update: 12/27/2012 Ver. 0.0.1 - Author: cooldude2k $
 */
 
 ob_start();
@@ -34,6 +34,8 @@ if(!defined("E_DEPRECATED")) { define("E_DEPRECATED", 0); }
 @ini_set("session.use_only_cookies", true);
 @ini_set("zlib.output_compression", false);
 @ini_set("zlib.output_compression_level", -1);
+ini_set("session.hash_function", "sha512");
+ini_set("session.hash_bits_per_character", "6");
 if(function_exists("date_default_timezone_set")) { 
 	@date_default_timezone_set("UTC"); }
 $website_url = null;
@@ -41,8 +43,8 @@ if($website_url==null||$website_url=="") {
 $website_url = $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/"; }
 $website_url_info = parse_url($website_url);
 header("Content-Type: text/plain; charset=UTF-8");
-$chatproverinfo = array("TinyChat2k", 1, 0, 0, null);
-$chatprofullname = $chatproverinfo[0]." ".$chatproverinfo[1].".".$chatproverinfo[2].".".$chatproverinfo[3];
+$chatproverinfo = array("TinyChat2k", 0, 0, 1, null);
+$chatprofullname = "{program:\"".$chatproverinfo[0]."\",major:".$chatproverinfo[1].",minor:".$chatproverinfo[2].",release:".$chatproverinfo[3]."};";
 $sqlite_busy_timeout = 2000;
 if(!isset($_GET['act'])) { $_GET['act'] = "view"; }
 if($_GET['act']=="check") { echo "{success:tinychat};"; exit(); }
@@ -138,7 +140,7 @@ $getmessage = sqlite3_query($sqlite_tinychat, "SELECT * FROM \"".$sqlprefix."mes
 $cmessageid = null;
 while ($messageinfo = sqlite3_fetch_assoc($getmessage)) {
 $cmessageid = $messageinfo['id'];
-echo $messageinfo['timestamp'].", ".$messageinfo['userid'].", \"".$messageinfo['username']."\", \"".base64_encode($messageinfo['message'])."\";\n"; } 
+echo "{timestamp:".$messageinfo['timestamp'].",userid:".$messageinfo['userid'].",username:\"".base64_encode($messageinfo['username'])."\",message:\"".base64_encode($messageinfo['message'])."\"};"; } 
 if(isset($cmessageid)&&$cmessageid!=null) {
 sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, $cmessageid)." WHERE \"id\"=".$_SESSION['userid'].";"); } } }
 sqlite3_close($sqlite_tinychat);

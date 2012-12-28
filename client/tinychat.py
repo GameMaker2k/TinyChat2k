@@ -13,12 +13,12 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: tinychat.py - Last Update: 12/27/2012 Ver. 1.0.0 - Author: cooldude2k $
+    $FileInfo: tinychat.py - Last Update: 12/27/2012 Ver. 0.0.1 - Author: cooldude2k $
 '''
 
 import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64;
 
-chatproverinfo = ["TinyChat2k", 1, 0, 0, None];
+chatproverinfo = ["TinyChat2k", 0, 0, 1, None];
 gettermtype=None;
 if(sys.platform!="win32"):
  gettermtype=os.getenv('TERM');
@@ -135,11 +135,11 @@ def getnewmessages():
   chati = 0;
   chatwin.refresh();
   while(chati<chatsize): 
-   chatarray = re.findall("([0-9\.]+)\, ([0-9]+)\, \"([\da-z]+)\"\, \"(.*)\";", chattext[chati]);
-   if(re.findall("([0-9\.]+)\, ([0-9]+)\, \"([\da-z]+)\"\, \"(.*)\";", chattext[chati])):
+   chatarray = re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", chattext[chati]);
+   if(re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", chattext[chati])):
     chatarray = chatarray[0];
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
-    chatwin.addstr(chatarray[2]+": ", curses.color_pair(2));
+    chatwin.addstr(base64.b64decode(chatarray[2])+": ", curses.color_pair(2));
     curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK);
     chatwin.addstr(base64.b64decode(chatarray[3])+"\n", curses.color_pair(3));
     chatwin.refresh();
