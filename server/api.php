@@ -12,7 +12,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: api.php - Last Update: 12/27/2012 Ver. 0.0.1 - Author: cooldude2k $
+    $FileInfo: api.php - Last Update: 12/28/2012 Ver. 0.0.1 - Author: cooldude2k $
 */
 
 ob_start();
@@ -94,7 +94,7 @@ if($nummsgs>=1) {
 $getlastmsg = sqlite3_query($sqlite_tinychat, "SELECT * FROM \"".$sqlprefix."messages\" ORDER BY \"id\" DESC LIMIT 1;");
 $getlastmsgid = sqlite3_fetch_assoc($getlastmsg); }
 if($nummsgs<=0) { $getlastmsgid['id'] = "0"; }
-sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, $getlastmsgid['id'])." WHERE \"id\"=".$memberinfo['id'].";");
+sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, $getlastmsgid['id']).", \"ip\"='".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."' WHERE \"id\"=".$memberinfo['id'].";");
 $_SESSION['userid'] = $memberinfo['id'];
 $_SESSION['username'] = $memberinfo['name'];
 echo "{success:loginuser};"; exit(); }
@@ -153,6 +153,6 @@ while ($messageinfo = sqlite3_fetch_assoc($getmessage)) {
 $cmessageid = $messageinfo['id'];
 echo "{timestamp:".$messageinfo['timestamp'].",userid:".$messageinfo['userid'].",username:\"".base64_encode($messageinfo['username'])."\",message:\"".base64_encode($messageinfo['message'])."\"};"; } 
 if(isset($cmessageid)&&$cmessageid!=null) {
-sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, $cmessageid)." WHERE \"id\"=".$_SESSION['userid'].";"); } } }
+sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, $cmessageid).", \"ip\"='".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."' WHERE \"id\"=".$_SESSION['userid'].";"); } } }
 sqlite3_close($sqlite_tinychat);
 ?>
