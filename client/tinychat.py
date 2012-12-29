@@ -38,16 +38,39 @@ if(len(sys.argv)>=2):
 if(len(sys.argv)<2):
  tinychaturl = str(raw_input("TinyChat URL: ")).decode("utf-8");
  tinychaturl = tinychaturl.strip();
+myusername = None;
+mypass = None;
 if(re.findall("(.*)\#([\da-z]+)", tinychaturl)):
  parseurl = re.findall("(.*)\#([\da-z]+)", tinychaturl);
  parseurl = parseurl[0];
  chatsiteurl = parseurl[0].strip();
- chatsiteurl = chatsiteurl.replace("#", "");
  chatroomname = parseurl[1].strip();
- chatroomname = chatroomname.replace("#", "");
  if(len(re.findall("([\da-z]+)", chatroomname))<1):
   sys.exit();
-if(not re.findall("(.*)\#([\da-z]+)", tinychaturl)):
+if(re.findall("(.*)\#([\da-z]+)\@([\da-z]+)", tinychaturl)):
+ parseurl = re.findall("(.*)\#([\da-z]+)\@([\da-z]+)", tinychaturl);
+ parseurl = parseurl[0];
+ chatsiteurl = parseurl[0].strip();
+ chatroomname = parseurl[2].strip();
+ myusername = parseurl[1].strip();
+ if(len(re.findall("([\da-z]+)", chatroomname))<1):
+  sys.exit();
+ if(len(re.findall("([\da-z]+)", myusername))<1):
+  sys.exit();
+if(re.findall("(.*)\#([\da-z]+)\:(.*)\@([\da-z]+)", tinychaturl)):
+ parseurl = re.findall("(.*)\#([\da-z]+)\:(.*)\@([\da-z]+)", tinychaturl);
+ parseurl = parseurl[0];
+ chatsiteurl = parseurl[0].strip();
+ chatroomname = parseurl[3].strip();
+ myusername = parseurl[1].strip();
+ mypass = parseurl[2].strip();
+ if(len(re.findall("([\da-z]+)", chatroomname))<1):
+  sys.exit();
+ if(len(re.findall("([\da-z]+)", myusername))<1):
+  sys.exit();
+ if(len(re.findall("([\da-z]+)", mypass))<1):
+  sys.exit();
+if(not re.findall("(.*)\#([\da-z]+)", tinychaturl) and not re.findall("(.*)\#([\da-z]+)\@([\da-z]+)", tinychaturl) and not re.findall("(.*)\#([\da-z]+)\:(.*)\@([\da-z]+)", tinychaturl)):
  chatsiteurl = tinychaturl.strip();
  chatsiteurl = chatsiteurl.replace("#", "");
  chatroomname = str(raw_input("Chat Room: ")).decode("utf-8");
@@ -55,11 +78,17 @@ if(not re.findall("(.*)\#([\da-z]+)", tinychaturl)):
  chatroomname = chatroomname.replace("#", "");
  if(len(re.findall("([\da-z]+)", chatroomname))<1):
   sys.exit();
-myusername = str(raw_input("User Name: ")).decode("utf-8");
-myusername = myusername.strip();
+if(len(sys.argv)>=3 and myusername==None):
+ myusername = sys.argv[2].strip();
+if(len(sys.argv)<3 and myusername==None):
+ myusername = str(raw_input("User Name: ")).decode("utf-8");
+ myusername = myusername.strip();
 if(len(re.findall("([\da-z]+)", myusername))<1):
  sys.exit();
-mypass = getpass.getpass();
+if(len(sys.argv)>=4 and mypass==None):
+ mypass = sys.argv[3];
+if(len(sys.argv)<4 and mypass==None):
+ mypass = getpass.getpass();
 mypasshash = hashlib.sha512(mypass.encode("utf-8")).hexdigest();
 chaturl = chatsiteurl;
 chathostname = getpass.getuser()+"@"+socket.gethostname();
@@ -98,6 +127,12 @@ if(signupcheck=="{warning:newuser};"):
  post_data = urllib.urlencode({'username': myusername, 'userpass': mypasshash});
  tinychattxt = login_opener.open(chaturl+"?act=signup&room="+chatroomname, post_data);
  signupcheck = tinychattxt.read()[:];
+ if(signupcheck=="{success:signupuser};"):
+  post_data = urllib.urlencode({'username': myusername, 'userpass' : mypasshash});
+  tinychattxt = login_opener.open(chaturl+"?act=login&room="+chatroomname, post_data);
+  signupcheck = tinychattxt.read()[:];
+ if(signupcheck=="{error:signupuser};"):
+  sys.exit();
 if(signupcheck=="{error:room};"):
  sys.exit();
 if(signupcheck=="{error:loginuser};"):
