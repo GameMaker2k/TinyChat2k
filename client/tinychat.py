@@ -13,7 +13,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: tinychat.py - Last Update: 12/27/2012 Ver. 0.0.1 - Author: cooldude2k $
+    $FileInfo: tinychat.py - Last Update: 12/28/2012 Ver. 0.0.1 - Author: cooldude2k $
 '''
 
 import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64;
@@ -33,10 +33,13 @@ if(sys.platform!="win32" and gettermtype!="linux" and gettermtype!="bsdos" and g
  sys.stdout.write("\x1b]2;"+chatprofullname+" - Login\x07");
 if(sys.platform=="win32"):
  os.system("title "+chatprofullname+" - Login");
+if(len(sys.argv)>=2):
+ tinychaturl = sys.argv[1];
 if(len(sys.argv)<2):
- sys.exit();
-if(re.findall("(.*)\#([\da-z]+)", sys.argv[1])):
- parseurl = re.findall("(.*)\#([\da-z]+)", sys.argv[1]);
+ tinychaturl = str(raw_input("TinyChat URL: ")).decode("utf-8");
+ tinychaturl = tinychaturl.strip();
+if(re.findall("(.*)\#([\da-z]+)", tinychaturl)):
+ parseurl = re.findall("(.*)\#([\da-z]+)", tinychaturl);
  parseurl = parseurl[0];
  chatsiteurl = parseurl[0].strip();
  chatsiteurl = chatsiteurl.replace("#", "");
@@ -44,8 +47,8 @@ if(re.findall("(.*)\#([\da-z]+)", sys.argv[1])):
  chatroomname = chatroomname.replace("#", "");
  if(len(re.findall("([\da-z]+)", chatroomname))<1):
   sys.exit();
-if(not re.findall("(.*)\#([\da-z]+)", sys.argv[1])):
- chatsiteurl = sys.argv[1].strip();
+if(not re.findall("(.*)\#([\da-z]+)", tinychaturl)):
+ chatsiteurl = tinychaturl.strip();
  chatsiteurl = chatsiteurl.replace("#", "");
  chatroomname = str(raw_input("Chat Room: ")).decode("utf-8");
  chatroomname = chatroomname.strip();
