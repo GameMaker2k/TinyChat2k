@@ -15,7 +15,7 @@
     $FileInfo: api.php - Last Update: 12/28/2012 Ver. 0.0.1 - Author: cooldude2k $
 */
 
-ob_start();
+@ob_start("ob_gzhandler");
 @ini_set("html_errors", false);
 @ini_set("track_errors", false);
 @ini_set("display_errors", false);
@@ -32,7 +32,7 @@ if(!defined("E_DEPRECATED")) { define("E_DEPRECATED", 0); }
 @ini_set('zend.ze1_compatibility_mode', 0);
 @ini_set("session.use_cookies", true);
 @ini_set("session.use_only_cookies", true);
-@ini_set("zlib.output_compression", false);
+//@ini_set("zlib.output_compression", false);
 @ini_set("zlib.output_compression_level", -1);
 @ini_set("session.hash_function", "sha512");
 @ini_set("session.hash_bits_per_character", "6");
@@ -54,12 +54,13 @@ if($website_url==null||$website_url=="") {
 $website_url = $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/"; }
 $website_url_info = parse_url($website_url);
 header("Content-Type: text/plain; charset=UTF-8");
+header("Content-Language: en");
+header("Vary: Accept-Encoding");
 $chatproverinfo = array("TinyChat2k", 0, 0, 1, null);
-$chatprofullname = "{program:\"".$chatproverinfo[0]."\",major:".$chatproverinfo[1].",minor:".$chatproverinfo[2].",release:".$chatproverinfo[3]."};";
+$chatprofullname = "{program:\"".base64_encode($chatproverinfo[0])."\",major:".$chatproverinfo[1].",minor:".$chatproverinfo[2].",release:".$chatproverinfo[3]."};";
 $sqlite_busy_timeout = 2000;
 if(!isset($_GET['act'])) { $_GET['act'] = "view"; }
 if($_GET['act']=="check") { echo "{success:tinychat};"; exit(); }
-if($_GET['act']=="version") { echo $chatprofullname; exit(); }
 if(!isset($_GET['room'])) { $_GET['room'] = ""; }
 $_GET['room'] = preg_replace("/[^a-z0-9]/", "", strtolower($_GET['room']));
 $roomname = $_GET['room'];
@@ -78,6 +79,7 @@ session_name($roomname);
 session_start();
 $sqlprefix = $roomname."_";
 require("./sqlite.php");
+if($_GET['act']=="version") { echo $chatprofullname; exit(); }
 if($_GET['act']=="login") { 
 $findmember = sqlite3_query($sqlite_tinychat, "SELECT COUNT(*) AS count FROM \"".$sqlprefix."members\" WHERE \"name\"='".sqlite3_escape_string($sqlite_tinychat, $_POST['username'])."';"); 
 $nummember = sqlite3_fetch_assoc($findmember);
@@ -120,8 +122,8 @@ sqlite3_query($sqlite_tinychat, "INSERT INTO \"".$sqlprefix."members\" (\"name\"
 $usersid = sqlite3_last_insert_rowid($sqlite_tinychat); 
 $findmember = sqlite3_query($sqlite_tinychat, "SELECT * FROM \"".$sqlprefix."members\" WHERE \"name\"='".sqlite3_escape_string($sqlite_tinychat, $_POST['username'])."';"); 
 $memberinfo = sqlite3_fetch_assoc($findmember); 
-echo "{success:loginuser};"; exit(); }
-if($numrows>0) { echo "{error:loginuser};"; exit(); } }
+echo "{success:signupuser};"; exit(); }
+if($numrows>0) { echo "{error:signupuser};"; exit(); } }
 if($_GET['act']=="logout") {
 if(!isset($_SESSION['userid'])||!isset($_SESSION['username'])) { 
 	echo "{error:logoutuser};"; exit(); }

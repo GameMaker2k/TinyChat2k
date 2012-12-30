@@ -16,7 +16,7 @@
     $FileInfo: tinychat.py - Last Update: 12/28/2012 Ver. 0.0.1 - Author: cooldude2k $
 '''
 
-import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64;
+import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64, gzip, StringIO;
 
 chatproverinfo = ["TinyChat2k", 0, 0, 1, None];
 gettermtype=None;
@@ -111,14 +111,24 @@ if(sys.platform=="win32"):
  os.system("title "+chatprofullname+" - "+chatroomname);
 tinychat_cj = cookielib.CookieJar();
 login_opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(tinychat_cj));
-login_opener.addheaders = [("Referer", ""+chaturl), ("User-Agent", chatua)];
+login_opener.addheaders = [("Referer", ""+chaturl), ("User-Agent", chatua), ("Accept-Encoding", "gzip, deflate"), ("Accept-Language", "en-US,en-CA,en-GB,en-UK,en-AU,en-NZ,en-ZA,en"), ("Accept-Charset", "utf-8"), ("Accept", "text/plain")];
 tinychatchk = login_opener.open(chaturl+"?act=check&room="+chatroomname);
-tinychatcheck = tinychatchk.read()[:];
+if(tinychatchk.info().get("Content-Encoding")=="gzip" or tinychatchk.info().get("Content-Encoding")=="deflate"):
+ strbuf = StringIO.StringIO(tinychatchk.read());
+ gzstrbuf = gzip.GzipFile(fileobj=strbuf);
+ tinychatcheck = gzstrbuf.read()[:];
+if(tinychatchk.info().get("Content-Encoding")!="gzip" and tinychatchk.info().get("Content-Encoding")!="deflate"):
+ tinychatcheck = tinychatchk.read()[:];
 if(tinychatcheck!="{success:tinychat};"):
  sys.exit();
 post_data = urllib.urlencode({'username': myusername, 'userpass' : mypasshash});
 tinychattxt = login_opener.open(chaturl+"?act=login&room="+chatroomname, post_data);
-signupcheck = tinychattxt.read()[:];
+if(tinychattxt.info().get("Content-Encoding")=="gzip" or tinychattxt.info().get("Content-Encoding")=="deflate"):
+ strbuf = StringIO.StringIO(tinychattxt.read());
+ gzstrbuf = gzip.GzipFile(fileobj=strbuf);
+ signupcheck = gzstrbuf.read()[:];
+if(tinychattxt.info().get("Content-Encoding")!="gzip" and tinychattxt.info().get("Content-Encoding")!="deflate"):
+ signupcheck = tinychattxt.read()[:];
 if(signupcheck=="{error:room};"):
  sys.exit();
 if(signupcheck=="{error:loginuser};"):
@@ -126,11 +136,21 @@ if(signupcheck=="{error:loginuser};"):
 if(signupcheck=="{warning:newuser};"):
  post_data = urllib.urlencode({'username': myusername, 'userpass': mypasshash});
  tinychattxt = login_opener.open(chaturl+"?act=signup&room="+chatroomname, post_data);
- signupcheck = tinychattxt.read()[:];
+ if(tinychattxt.info().get("Content-Encoding")=="gzip" or tinychattxt.info().get("Content-Encoding")=="deflate"):
+  strbuf = StringIO.StringIO(tinychattxt.read());
+  gzstrbuf = gzip.GzipFile(fileobj=strbuf);
+  signupcheck = gzstrbuf.read()[:];
+ if(tinychattxt.info().get("Content-Encoding")!="gzip" and tinychattxt.info().get("Content-Encoding")!="deflate"):
+  signupcheck = tinychattxt.read()[:];
  if(signupcheck=="{success:signupuser};"):
   post_data = urllib.urlencode({'username': myusername, 'userpass' : mypasshash});
   tinychattxt = login_opener.open(chaturl+"?act=login&room="+chatroomname, post_data);
-  signupcheck = tinychattxt.read()[:];
+  if(tinychattxt.info().get("Content-Encoding")=="gzip" or tinychattxt.info().get("Content-Encoding")=="deflate"):
+   strbuf = StringIO.StringIO(tinychattxt.read());
+   gzstrbuf = gzip.GzipFile(fileobj=strbuf);
+   signupcheck = gzstrbuf.read()[:];
+  if(tinychattxt.info().get("Content-Encoding")!="gzip" and tinychattxt.info().get("Content-Encoding")!="deflate"):
+   signupcheck = tinychattxt.read()[:];
  if(signupcheck=="{error:signupuser};"):
   sys.exit();
 if(signupcheck=="{error:room};"):
@@ -168,7 +188,12 @@ def getnewmessages():
  global threadloopstop, refreshtime, login_opener;
  while threadloopstop==False:
   tinychattxt = login_opener.open(chaturl+"?act=view&room="+chatroomname);
-  chattext = tinychattxt.readlines();
+  if(tinychattxt.info().get("Content-Encoding")=="gzip" or tinychattxt.info().get("Content-Encoding")=="deflate"):
+   strbuf = StringIO.StringIO(tinychattxt.read());
+   gzstrbuf = gzip.GzipFile(fileobj=strbuf);
+   chattext = gzstrbuf.readlines()[:];
+  if(tinychattxt.info().get("Content-Encoding")!="gzip" and tinychattxt.info().get("Content-Encoding")!="deflate"):
+   chattext = tinychattxt.readlines()[:];
   chatsize = len(chattext);
   chati = 0;
   chatwin.refresh();
