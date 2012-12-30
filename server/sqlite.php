@@ -12,7 +12,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: sqlite.php - Last Update: 12/27/2012 Ver. 0.0.1 - Author: cooldude2k $
+    $FileInfo: sqlite.php - Last Update: 12/30/2012 Ver. 0.0.1 - Author: cooldude2k $
 */
 
 $ScriptFileName = basename($_SERVER['SCRIPT_NAME']);
@@ -87,12 +87,90 @@ function sqlite3_libversion($dbhandle) {
 	return $dbversion; } }
 function get_microtime() {
 	return array_sum(explode(" ", microtime())); }
+function log_fix_quotes($logtxt) {
+	$logtxt = str_replace("\"", "\\\"", $logtxt);
+	$logtxt = str_replace("'", "", $logtxt);
+	return $logtxt; }
+function get_server_values($matches) {
+	$return_text = "-";
+	if(isset($_SERVER[$matches[1]])) { $return_text = $_SERVER[$matches[1]]; }
+	if(!isset($_SERVER[$matches[1]])) { $return_text = "-"; }
+	return $return_text; }
+function get_cookie_values($matches) {
+	$return_text = null;
+	if(isset($_COOKIE[$matches[1]])) { $return_text = $_COOKIE[$matches[1]]; }
+	if(!isset($_COOKIE[$matches[1]])) { $return_text = null; }
+	return $return_text; }
+function get_env_values($matches) {
+	$return_text = getenv($matches[1]);
+	if(!isset($return_text)) { $return_text = "-"; }
+	return $return_text; }
+function get_setting_values($matches) {
+	global $Settings;
+	$return_text = null;
+	$matches[1] = str_replace("sqlpass", "sqluser", $matches[1]);
+	if(isset($Settings[$matches[1]])) { $return_text = $Settings[$matches[1]]; }
+	if(!isset($Settings[$matches[1]])) { $return_text = null; }
+	return $return_text; }
+function log_fix_get_server_values($matches) {
+	return log_fix_quotes(get_server_values($matches)); }
+function log_fix_get_cookie_values($matches) {
+	return log_fix_quotes(get_cookie_values($matches)); }
+function log_fix_get_env_values($matches) {
+	return log_fix_quotes(get_env_values($matches)); }
+function log_fix_get_setting_values($matches) {
+	return log_fix_quotes(get_setting_values($matches)); }
+function get_time($matches) {
+	return date(convert_strftime($matches[1])); }
+function convert_strftime($strftime) {
+$strftime = str_replace("%%", "{percent\}p", $strftime);
+$strftime = str_replace("%a", "D", $strftime);
+$strftime = str_replace("%A", "l", $strftime);
+$strftime = str_replace("%d", "d", $strftime);
+$strftime = str_replace("%e", "j", $strftime);
+$strftime = str_replace("%j", "z", $strftime);
+$strftime = str_replace("%u", "w", $strftime);
+$strftime = str_replace("%w", "w", $strftime);
+$strftime = str_replace("%U", "W", $strftime);
+$strftime = str_replace("%V", "W", $strftime);
+$strftime = str_replace("%W", "W", $strftime);
+$strftime = str_replace("%b", "M", $strftime);
+$strftime = str_replace("%B", "F", $strftime);
+$strftime = str_replace("%h", "M", $strftime);
+$strftime = str_replace("%m", "m", $strftime);
+$strftime = str_replace("%g", "y", $strftime);
+$strftime = str_replace("%G", "Y", $strftime);
+$strftime = str_replace("%y", "y", $strftime);
+$strftime = str_replace("%Y", "Y", $strftime);
+$strftime = str_replace("%H", "H", $strftime);
+$strftime = str_replace("%I", "h", $strftime);
+$strftime = str_replace("%l", "g", $strftime);
+$strftime = str_replace("%M", "i", $strftime);
+$strftime = str_replace("%p", "A", $strftime);
+$strftime = str_replace("%P", "a", $strftime);
+$strftime = str_replace("%r", "h:i:s A", $strftime);
+$strftime = str_replace("%R", "H:i", $strftime);
+$strftime = str_replace("%S", "s", $strftime);
+$strftime = str_replace("%T", "H:i:s", $strftime);
+$strftime = str_replace("%X", "H:i:s", $strftime);
+$strftime = str_replace("%z", "O", $strftime);
+$strftime = str_replace("%Z", "O", $strftime);
+$strftime = str_replace("%c", "D M j H:i:s Y", $strftime);
+$strftime = str_replace("%D", "m/d/y", $strftime);
+$strftime = str_replace("%F", "Y-m-d", $strftime);
+$strftime = str_replace("%x", "m/d/y", $strftime);
+$strftime = str_replace("%n", "\n", $strftime);
+$strftime = str_replace("%t", "\t", $strftime);
+$strftime = preg_replace("/\{percent\}p/s", "%", $strftime);
+return $strftime; }
 if($_GET['act']=="login"&&(!isset($_POST['username'])||!isset($_POST['userpass']))) { 
 	echo "{error:loginuser};"; exit(); }
 if($_GET['act']=="signup"&&(!isset($_POST['username'])||!isset($_POST['userpass']))) { 
 	echo "{error:loginuser};"; exit(); }
 if($_GET['act']=="message"&&(!isset($_SESSION['userid'])||!isset($_SESSION['username'])||!isset($roomname))) {
 	echo "{error:message};"; exit(); }
+if($_GET['act']=="welcome"&&(!isset($_SESSION['userid'])||!isset($_SESSION['username'])||!isset($roomname))) {
+	echo "{error:welcome};"; exit(); }
 if($_GET['act']=="view"&&(!isset($_SESSION['userid'])||!isset($_SESSION['username'])||!isset($roomname))) { 
 	echo "{error:room};"; exit(); }
 $sqlite_tinychat = sqlite3_open("./".$roomname.".sdb");

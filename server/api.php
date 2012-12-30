@@ -12,7 +12,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: api.php - Last Update: 12/28/2012 Ver. 0.0.1 - Author: cooldude2k $
+    $FileInfo: api.php - Last Update: 12/30/2012 Ver. 0.0.1 - Author: cooldude2k $
 */
 
 @ob_start("ob_gzhandler");
@@ -49,6 +49,10 @@ if(substr(php_uname("s"), 0, 7)!="Windows"&&
 	@ini_set("session.entropy_length", "1024"); }
 if(function_exists("date_default_timezone_set")) { 
 	@date_default_timezone_set("UTC"); }
+$welcomemsg = array();
+$welcomemsg['userid'] = 0;
+$welcomemsg['username'] = "message";
+$welcomemsg['message'] = "Hello %{UserName}m welcome to chat room: %{ChatRoom}m";
 $website_url = null;
 if($website_url==null||$website_url=="") {
 $website_url = $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/"; }
@@ -80,6 +84,37 @@ session_start();
 $sqlprefix = $roomname."_";
 require("./sqlite.php");
 if($_GET['act']=="version") { echo $chatprofullname; exit(); }
+if($_GET['act']=="welcome") { 
+$HTTP_REQUEST_LINE = $_SERVER["REQUEST_METHOD"]." ".$_SERVER["REQUEST_URI"]." ".$_SERVER["SERVER_PROTOCOL"];
+$LOG_QUERY_STRING = "";
+if($_SERVER["QUERY_STRING"]!==""&&isset($_SESSION['userid'])&&
+	isset($_SESSION['username'])&&isset($_GET['room'])) {
+$LOG_QUERY_STRING = "?".$_SERVER["QUERY_STRING"]; }
+if(trim($LOG_QUERY_STRING, "\x00..\x1F") == "") { $LOG_QUERY_STRING = ""; }
+$welcomemsg['message'] = preg_replace("/%%/s", "{percent}p", $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace_callback("/%([\<\>]*?)\{([^\}]*)\}C/s", "get_cookie_values", $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace_callback("/%([\<\>]*?)\{([^\}]*)\}e/s", "get_env_values", $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/%([\<\>]*?)h/s", $_SERVER['REMOTE_ADDR'], $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/%([\<\>]*?)H/s", $_SERVER["SERVER_PROTOCOL"], $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/%([\<\>]*?)\{Referer\}i/s", $LOG_URL_REFERER, $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/%([\<\>]*?)\{User-Agent\}i/s", $LOG_USER_AGENT, $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace_callback("/%([\<\>]*?)\{([^\}]*)\}i/s", "get_server_values", $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/%([\<\>]*?)m/s", $_SERVER["REQUEST_METHOD"], $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/%([\<\>]*?)p/s", $_SERVER["SERVER_PORT"], $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/%([\<\>]*?)q/s", $LOG_QUERY_STRING, $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/%([\<\>]*?)r/s", $HTTP_REQUEST_LINE, $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/%([\<\>]*?)t/s", "[".date("d/M/Y:H:i:s O")."]", $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace_callback("/%([\<\>]*?)\{([^\}]*)\}t/s", "get_time", $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/%([\<\>]*?)v/s", $_SERVER["SERVER_NAME"], $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/%([\<\>]*?)V/s", $_SERVER["SERVER_NAME"], $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/\%\{UserName\}m/s", $_SESSION['username'], $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/\%\{MemberName\}m/s", $_SESSION['username'], $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/\%\{UserID\}m/s", $_SESSION['userid'], $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/\%\{MemberID\}m/s", $_SESSION['userid'], $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/\%\{ChatRoom\}m/s", $_GET['room'], $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/\%\{RoomName\}m/s", $_GET['room'], $welcomemsg['message']);
+$welcomemsg['message'] = preg_replace("/\{percent\}p/s", "%", $welcomemsg['message']);
+echo "{timestamp:".get_microtime().",userid:".$welcomemsg['userid'].",username:\"".base64_encode($welcomemsg['username'])."\",message:\"".base64_encode($welcomemsg['message'])."\"};"; exit(); }
 if($_GET['act']=="login") { 
 $findmember = sqlite3_query($sqlite_tinychat, "SELECT COUNT(*) AS count FROM \"".$sqlprefix."members\" WHERE \"name\"='".sqlite3_escape_string($sqlite_tinychat, $_POST['username'])."';"); 
 $nummember = sqlite3_fetch_assoc($findmember);

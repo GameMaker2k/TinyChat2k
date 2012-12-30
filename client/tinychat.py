@@ -13,7 +13,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: tinychat.py - Last Update: 12/28/2012 Ver. 0.0.1 - Author: cooldude2k $
+    $FileInfo: tinychat.py - Last Update: 12/30/2012 Ver. 0.0.1 - Author: cooldude2k $
 '''
 
 import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64, gzip, StringIO;
@@ -173,10 +173,25 @@ inputwin = curses.newwin(win_maxy,  win_maxx, win_maxy - 3, 0);
 inputwin.clear();
 inputwin.keypad(1);
 inputwin.scrollok(True);
-curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
-chatwin.addstr("message: ", curses.color_pair(2));
-curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK);
-chatwin.addstr("Hello "+myusername+" welcome to chat room: "+chatroomname+"\n", curses.color_pair(3));
+tinychattxt = login_opener.open(chaturl+"?act=welcome&room="+chatroomname);
+if(tinychattxt.info().get("Content-Encoding")=="gzip" or tinychattxt.info().get("Content-Encoding")=="deflate"):
+ strbuf = StringIO.StringIO(tinychattxt.read());
+ gzstrbuf = gzip.GzipFile(fileobj=strbuf);
+ welcometext = gzstrbuf.read()[:];
+if(tinychattxt.info().get("Content-Encoding")!="gzip" and tinychattxt.info().get("Content-Encoding")!="deflate"):
+ welcometext = tinychattxt.read()[:];
+if(re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", welcometext)):
+ welcomearray = re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", welcometext);
+ welcomearray = welcomearray[0];
+ curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
+ chatwin.addstr(base64.b64decode(welcomearray[2])+": ", curses.color_pair(2));
+ curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK);
+ chatwin.addstr(base64.b64decode(welcomearray[3])+"\n", curses.color_pair(3));
+if(not re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", welcometext)):
+ curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
+ chatwin.addstr("message: ", curses.color_pair(2));
+ curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK);
+ chatwin.addstr("Hello "+myusername+" welcome to chat room: "+chatroomname+"\n", curses.color_pair(3));
 chatwin.refresh();
 def getstr_prompt(txt_screen, txt_prompt): 
  curses.init_pair(1, curses.COLOR_GREEN, curses.COLOR_BLACK);
@@ -198,8 +213,8 @@ def getnewmessages():
   chati = 0;
   chatwin.refresh();
   while(chati<chatsize): 
-   chatarray = re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", chattext[chati]);
    if(re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", chattext[chati])):
+    chatarray = re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", chattext[chati]);
     chatarray = chatarray[0];
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
     chatwin.addstr(base64.b64decode(chatarray[2])+": ", curses.color_pair(2));
