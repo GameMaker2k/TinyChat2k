@@ -1,11 +1,11 @@
- <Files "sqlite.php">
-    Order Deny,Allow
-    Deny from all
-    Satisfy All
- </Files>
+<Files "sqlite.php">
+   Order Deny,Allow
+   Deny from all
+   Satisfy All
+</Files>
 
- <Files "*.sdb">
-    Order Deny,Allow
-    Deny from all
-    Satisfy All
- </Files>
+<Files "*.sdb">
+   Order Deny,Allow
+   Deny from all
+   Satisfy All
+</Files>

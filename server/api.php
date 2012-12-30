@@ -53,6 +53,8 @@ $welcomemsg = array();
 $welcomemsg['userid'] = 0;
 $welcomemsg['username'] = "message";
 $welcomemsg['message'] = "Hello %{UserName}m welcome to chat room: %{ChatRoom}m";
+$sesssavedir = "tcsess";
+$databasedir = "tcdata";
 $website_url = null;
 if($website_url==null||$website_url=="") {
 $website_url = $_SERVER["REQUEST_SCHEME"]."://".$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME'])."/"; }
@@ -63,21 +65,49 @@ header("Vary: Accept-Encoding");
 $chatproverinfo = array("TinyChat2k", 0, 0, 1, null);
 $chatprofullname = "{program:\"".base64_encode($chatproverinfo[0])."\",major:".$chatproverinfo[1].",minor:".$chatproverinfo[2].",release:".$chatproverinfo[3]."};";
 $sqlite_busy_timeout = 2000;
+$tinyactcheck = array("view", "check", "version", "welcome", "login", "signup", "logout", "message");
 if(!isset($_GET['act'])) { $_GET['act'] = "view"; }
 if($_GET['act']=="check") { echo "{success:tinychat};"; exit(); }
 if(!isset($_GET['room'])) { $_GET['room'] = ""; }
 $_GET['room'] = preg_replace("/[^a-z0-9]/", "", strtolower($_GET['room']));
 $roomname = $_GET['room'];
 if($roomname=="") { echo "{error:room};"; exit(); }
-if(!file_exists("./sessions/")) { mkdir("./sessions/"); }
-if(!file_exists("./sessions/".$roomname."/")) { mkdir("./sessions/".$roomname."/"); }
+if(!file_exists("./.htaccess")) { 
+	$htafile_sqlite_fp = fopen("./.htaccess", "w+");
+	fwrite($htafile_sqlite_fp, "<Files \"sqlite.php\">\n   Order Deny,Allow\n   Deny from all\n   Satisfy All\n</Files>\n\n<Files \"*.sdb\">\n   Order Deny,Allow\n   Deny from all\n   Satisfy All\n</Files>\n");
+	fclose($htafile_sqlite_fp);
+	chmod("./.htaccess", 0766); }
+if(!file_exists("./".$databasedir."/")) { 
+	mkdir("./".$databasedir."/", 0766); 
+	chmod("./".$databasedir."/", 0766); }
+if(!file_exists("./".$databasedir."/.htaccess")) { 
+	$htafile_sqlite_fp = fopen("./".$databasedir."/.htaccess", "w+");
+	fwrite($htafile_sqlite_fp, "Order Deny,Allow\nDeny from all\n");
+	fclose($htafile_sqlite_fp);
+	chmod("./".$databasedir."/.htaccess", 0766); }
+if(!file_exists("./".$sesssavedir."/")) { 
+	mkdir("./".$sesssavedir."/", 0766); 
+	chmod("./".$sesssavedir."/", 0766); }
+if(!file_exists("./".$sesssavedir."/.htaccess")) { 
+	$htafile_sqlite_fp = fopen("./".$sesssavedir."/.htaccess", "w+");
+	fwrite($htafile_sqlite_fp, "Order Deny,Allow\nDeny from all\n");
+	fclose($htafile_sqlite_fp);
+	chmod("./".$sesssavedir."/.htaccess", 0766); }
+if(!file_exists("./".$sesssavedir."/".$roomname."/")) { 
+	mkdir("./".$sesssavedir."/".$roomname."/", 0766);
+	chmod("./".$sesssavedir."/".$roomname."/", 0766); }
+if(!file_exists("./".$sesssavedir."/".$roomname."/.htaccess")) { 
+	$htafile_sqlite_fp = fopen("./".$sesssavedir."/".$roomname."/.htaccess", "w+");
+	fwrite($htafile_sqlite_fp, "Order Deny,Allow\nDeny from all\n");
+	fclose($htafile_sqlite_fp);
+	chmod("./".$sesssavedir."/".$roomname."/.htaccess", 0766); }
 session_cache_limiter("private, no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0");
 header("Cache-Control: private, no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0");
 header("Pragma: private, no-cache, no-store, must-revalidate, pre-check=0, post-check=0, max-age=0");
 header("Date: ".gmdate("D, d M Y H:i:s")." GMT");
 header("Last-Modified: ".gmdate("D, d M Y H:i:s")." GMT");
 header("Expires: ".gmdate("D, d M Y H:i:s")." GMT");
-session_save_path("./sessions/".$roomname."/");
+session_save_path("./".$sesssavedir."/".$roomname."/");
 session_set_cookie_params(0, $website_url_info['path'], $website_url_info['host']);
 session_name($roomname);
 session_start();

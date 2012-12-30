@@ -24,7 +24,6 @@ if ($ScriptFileName=="sqlite.php"||$ScriptFileName=="/sqlite.php") {
 	exit(); }
 
 $sqlite_version = 3;
-
 if(extension_loaded("sqlite3")&&$sqlite_version==3) {
 function sqlite3_open($filename, $mode = 0666) {
    global $site_encryption_key;
@@ -173,7 +172,12 @@ if($_GET['act']=="welcome"&&(!isset($_SESSION['userid'])||!isset($_SESSION['user
 	echo "{error:welcome};"; exit(); }
 if($_GET['act']=="view"&&(!isset($_SESSION['userid'])||!isset($_SESSION['username'])||!isset($roomname))) { 
 	echo "{error:room};"; exit(); }
-$sqlite_tinychat = sqlite3_open("./".$roomname.".sdb");
+if(!file_exists("./".$databasedir."/".$roomname.".sdb")) { 
+	$sqlite_fp = fopen("./".$databasedir."/".$roomname.".sdb", "w+");
+	fwrite($sqlite_fp, null);
+	fclose($sqlite_fp);
+	chmod("./".$databasedir."/".$roomname.".sdb", 0766); }
+$sqlite_tinychat = sqlite3_open("./".$databasedir."/".$roomname.".sdb", 0766);
 if(!isset($sqlite_busy_timeout)) { $sqlite_busy_timeout = 2000; }
 sqlite3_busy_timeout($sqlite_tinychat, $sqlite_busy_timeout);
 $tablecheck1 = @sqlite3_query($sqlite_tinychat, "SELECT * FROM \"".$sqlprefix."members\""); 
