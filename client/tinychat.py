@@ -121,6 +121,7 @@ if(tinychatchk.info().get("Content-Encoding")!="gzip" and tinychatchk.info().get
  tinychatcheck = tinychatchk.read()[:];
 if(tinychatcheck!="{success:tinychat};"):
  sys.exit();
+usrjustsignedup = False;
 post_data = urllib.urlencode({'username': myusername, 'userpass' : mypasshash});
 tinychattxt = login_opener.open(chaturl+"?act=login&room="+chatroomname, post_data);
 if(tinychattxt.info().get("Content-Encoding")=="gzip" or tinychattxt.info().get("Content-Encoding")=="deflate"):
@@ -134,6 +135,7 @@ if(signupcheck=="{error:room};"):
 if(signupcheck=="{error:loginuser};"):
  sys.exit();
 if(signupcheck=="{warning:newuser};"):
+ usrjustsignedup = True;
  post_data = urllib.urlencode({'username': myusername, 'userpass': mypasshash});
  tinychattxt = login_opener.open(chaturl+"?act=signup&room="+chatroomname, post_data);
  if(tinychattxt.info().get("Content-Encoding")=="gzip" or tinychattxt.info().get("Content-Encoding")=="deflate"):
@@ -173,6 +175,14 @@ inputwin = curses.newwin(win_maxy,  win_maxx, win_maxy - 3, 0);
 inputwin.clear();
 inputwin.keypad(1);
 inputwin.scrollok(True);
+if(usrjustsignedup==False):
+ hellomessage = "has joined chat room "+chatroomname+".";
+ post_data = urllib.urlencode({'message': hellomessage});
+ tinychating = login_opener.open(chaturl+"?act=message&room="+chatroomname, post_data);
+if(usrjustsignedup==True):
+ hellomessage = "has signedup and joined chat room "+chatroomname+".";
+ post_data = urllib.urlencode({'message': hellomessage});
+ tinychating = login_opener.open(chaturl+"?act=message&room="+chatroomname, post_data);
 tinychattxt = login_opener.open(chaturl+"?act=welcome&room="+chatroomname);
 if(tinychattxt.info().get("Content-Encoding")=="gzip" or tinychattxt.info().get("Content-Encoding")=="deflate"):
  strbuf = StringIO.StringIO(tinychattxt.read());
@@ -248,6 +258,9 @@ while(mymessagelc!="quit" and mymessagelc!="exit"):
 threadloopstop=True;
 gnm.cancel();
 curses.endwin();
+goodbyemessage = "has left chat room "+chatroomname+".";
+post_data = urllib.urlencode({'message': goodbyemessage});
+tinychating = login_opener.open(chaturl+"?act=message&room="+chatroomname, post_data);
 tinychating = login_opener.open(chaturl+"?act=logout");
 if(sys.platform=="win32"):
  os.popen("cls");
