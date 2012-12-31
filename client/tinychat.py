@@ -189,16 +189,20 @@ if(tinychattxt.info().get("Content-Encoding")!="gzip" and tinychattxt.info().get
 if(re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", welcometext)):
  welcomearray = re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", welcometext);
  welcomearray = welcomearray[0];
- if(welcomearray[2]>0):
-  curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
- if(welcomearray[2]==0):
-  curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK);
- chatwin.addstr(base64.b64decode(welcomearray[2])+": ", curses.color_pair(2));
+ curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK);
+ chatwin.addstr(base64.b64decode(welcomearray[2])+": ", curses.color_pair(4));
  curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK);
  chatwin.addstr(base64.b64decode(welcomearray[3])+"\n", curses.color_pair(3));
-if(not re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", welcometext)):
- curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
- chatwin.addstr("message: ", curses.color_pair(2));
+if(not re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", welcometext) and re.findall("([0-9\.]+)\, ([0-9]+)\, \"([\da-z]+)\"\, \"(.*)\";", welcometext)):
+ welcomearray = re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", welcometext);
+ welcomearray = welcomearray[0];
+ curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK);
+ chatwin.addstr(base64.b64decode(welcomearray[2])+": ", curses.color_pair(4));
+ curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK);
+ chatwin.addstr(base64.b64decode(welcomearray[3])+"\n", curses.color_pair(3));
+if(not re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", welcometext) and not re.findall("([0-9\.]+)\, ([0-9]+)\, \"([\da-z]+)\"\, \"(.*)\";", welcometext)):
+ curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK);
+ chatwin.addstr("message: ", curses.color_pair(4));
  curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK);
  chatwin.addstr("Hello "+myusername+" welcome to chat room: "+chatroomname+"\n", curses.color_pair(3));
 chatwin.refresh();
@@ -225,6 +229,24 @@ def getnewmessages():
    if(re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", chattext[chati])):
     chatarray = re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", chattext[chati]);
     chatarray = chatarray[0];
+    if(int(chatarray[1])>0):
+     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
+     chatwin.addstr(base64.b64decode(chatarray[2])+": ", curses.color_pair(2));
+    if(int(chatarray[1])==0):
+     curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK);
+     chatwin.addstr(base64.b64decode(chatarray[2])+": ", curses.color_pair(4));
+    curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK);
+    chatwin.addstr(base64.b64decode(chatarray[3])+"\n", curses.color_pair(3));
+    chatwin.refresh();
+   if(not re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", chattext[chati]) and re.findall("([0-9\.]+)\, ([0-9]+)\, \"([\da-z]+)\"\, \"(.*)\";", chattext[chati])):
+    chatarray = re.findall("([0-9\.]+)\, ([0-9]+)\, \"([\da-z]+)\"\, \"(.*)\";", chattext[chati]);
+    chatarray = chatarray[0];
+    if(int(chatarray[1])>0):
+     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
+     chatwin.addstr(base64.b64decode(chatarray[2])+": ", curses.color_pair(2));
+    if(int(chatarray[1])==0):
+     curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK);
+     chatwin.addstr(base64.b64decode(chatarray[2])+": ", curses.color_pair(4));
     curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
     chatwin.addstr(base64.b64decode(chatarray[2])+": ", curses.color_pair(2));
     curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK);
