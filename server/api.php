@@ -12,7 +12,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: api.php - Last Update: 12/30/2012 Ver. 0.0.1 - Author: cooldude2k $
+    $FileInfo: api.php - Last Update: 12/31/2012 Ver. 0.0.1 - Author: cooldude2k $
 */
 
 @ob_start("ob_gzhandler");
@@ -53,6 +53,10 @@ $welcomemsg = array();
 $welcomemsg['userid'] = 0;
 $welcomemsg['username'] = "message";
 $welcomemsg['message'] = "Hello %{UserName}m welcome to chat room: %{ChatRoom}m";
+$hellobyemsg = array();
+$hellobyemsg['hello'] = "%{UserName}m has joined chat room %{ChatRoom}m";
+$hellobyemsg['signup'] = "%{UserName}m has signed up and joined chat room: %{ChatRoom}m";
+$hellobyemsg['goodbye'] = "%{UserName}m has left chat room: %{ChatRoom}m";
 $sesssavedir = "tcsess";
 $databasedir = "tcdata";
 $website_url = null;
@@ -65,8 +69,9 @@ header("Vary: Accept-Encoding");
 $chatproverinfo = array("TinyChat2k", 0, 0, 1, null);
 $chatprofullname = "{program:\"".base64_encode($chatproverinfo[0])."\",major:".$chatproverinfo[1].",minor:".$chatproverinfo[2].",release:".$chatproverinfo[3]."};";
 $sqlite_busy_timeout = 2000;
-$tinyactcheck = array("view", "check", "version", "welcome", "login", "signup", "logout", "message");
+$tinyactcheck = array("view", "check", "version", "welcome", "status", "login", "signup", "logout", "message");
 if(!isset($_GET['act'])) { $_GET['act'] = "view"; }
+if(!in_array($_GET['act'], $tinyactcheck)) { $_GET['type'] = "welcome"; }
 if($_GET['act']=="check") { echo "{success:tinychat};"; exit(); }
 if(!isset($_GET['room'])) { $_GET['room'] = ""; }
 $_GET['room'] = preg_replace("/[^a-z0-9]/", "", strtolower($_GET['room']));
@@ -114,37 +119,23 @@ session_start();
 $sqlprefix = $roomname."_";
 require("./sqlite.php");
 if($_GET['act']=="version") { echo $chatprofullname; exit(); }
-if($_GET['act']=="welcome") { 
-$HTTP_REQUEST_LINE = $_SERVER["REQUEST_METHOD"]." ".$_SERVER["REQUEST_URI"]." ".$_SERVER["SERVER_PROTOCOL"];
-$LOG_QUERY_STRING = "";
-if($_SERVER["QUERY_STRING"]!==""&&isset($_SESSION['userid'])&&
-	isset($_SESSION['username'])&&isset($_GET['room'])) {
-$LOG_QUERY_STRING = "?".$_SERVER["QUERY_STRING"]; }
-if(trim($LOG_QUERY_STRING, "\x00..\x1F") == "") { $LOG_QUERY_STRING = ""; }
-$welcomemsg['message'] = preg_replace("/%%/s", "{percent}p", $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace_callback("/%([\<\>]*?)\{([^\}]*)\}C/s", "get_cookie_values", $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace_callback("/%([\<\>]*?)\{([^\}]*)\}e/s", "get_env_values", $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/%([\<\>]*?)h/s", $_SERVER['REMOTE_ADDR'], $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/%([\<\>]*?)H/s", $_SERVER["SERVER_PROTOCOL"], $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/%([\<\>]*?)\{Referer\}i/s", $LOG_URL_REFERER, $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/%([\<\>]*?)\{User-Agent\}i/s", $LOG_USER_AGENT, $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace_callback("/%([\<\>]*?)\{([^\}]*)\}i/s", "get_server_values", $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/%([\<\>]*?)m/s", $_SERVER["REQUEST_METHOD"], $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/%([\<\>]*?)p/s", $_SERVER["SERVER_PORT"], $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/%([\<\>]*?)q/s", $LOG_QUERY_STRING, $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/%([\<\>]*?)r/s", $HTTP_REQUEST_LINE, $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/%([\<\>]*?)t/s", "[".date("d/M/Y:H:i:s O")."]", $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace_callback("/%([\<\>]*?)\{([^\}]*)\}t/s", "get_time", $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/%([\<\>]*?)v/s", $_SERVER["SERVER_NAME"], $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/%([\<\>]*?)V/s", $_SERVER["SERVER_NAME"], $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/\%\{UserName\}m/s", $_SESSION['username'], $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/\%\{MemberName\}m/s", $_SESSION['username'], $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/\%\{UserID\}m/s", $_SESSION['userid'], $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/\%\{MemberID\}m/s", $_SESSION['userid'], $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/\%\{ChatRoom\}m/s", $_GET['room'], $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/\%\{RoomName\}m/s", $_GET['room'], $welcomemsg['message']);
-$welcomemsg['message'] = preg_replace("/\{percent\}p/s", "%", $welcomemsg['message']);
-echo "{timestamp:".get_microtime().",userid:".$welcomemsg['userid'].",username:\"".base64_encode($welcomemsg['username'])."\",message:\"".base64_encode($welcomemsg['message'])."\"};"; exit(); }
+if($_GET['act']=="welcome"&&isset($_SESSION['userid'])&&isset($_SESSION['username'])&&isset($_GET['room'])) { 
+	$_GET['type'] = "status"; $_GET['type'] = "welcome"; }
+if($_GET['act']=="status"&&isset($_SESSION['userid'])&&isset($_SESSION['username'])&&isset($_GET['room'])) {
+$tinystatuscheck = array("welcome", "hello", "signup", "goodbye");
+if(!isset($_GET['type'])) { $_GET['type'] = "welcome"; }
+if(!in_array($_GET['type'], $tinystatuscheck)) { $_GET['type'] = "welcome"; }
+if($_GET['type']=="welcome") { 
+echo "{timestamp:".get_microtime().",userid:".$welcomemsg['userid'].",username:\"".base64_encode($welcomemsg['username'])."\",message:\"".base64_encode(convert_message($welcomemsg['message']))."\"};"; exit(); }
+if($_GET['type']=="hello") { 
+sqlite3_query($sqlite_tinychat, "INSERT INTO \"".$sqlprefix."messages\" (\"userid\", \"username\", \"timestamp\", \"message\", \"ip\") VALUES ('".sqlite3_escape_string($sqlite_tinychat, $welcomemsg['userid'])."', '".sqlite3_escape_string($sqlite_tinychat, $welcomemsg['username'])."', '".sqlite3_escape_string($sqlite_tinychat, get_microtime())."', '".sqlite3_escape_string($sqlite_tinychat, convert_message($hellobyemsg['hello']))."', '".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."');"); 
+sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, sqlite3_last_insert_rowid($sqlite_tinychat)).", \"ip\"='".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."' WHERE \"id\"=".sqlite3_escape_string($sqlite_tinychat, $_SESSION['userid']).";"); exit(); }
+if($_GET['type']=="signup") { 
+sqlite3_query($sqlite_tinychat, "INSERT INTO \"".$sqlprefix."messages\" (\"userid\", \"username\", \"timestamp\", \"message\", \"ip\") VALUES ('".sqlite3_escape_string($sqlite_tinychat, $welcomemsg['userid'])."', '".sqlite3_escape_string($sqlite_tinychat, $welcomemsg['username'])."', '".sqlite3_escape_string($sqlite_tinychat, get_microtime())."', '".sqlite3_escape_string($sqlite_tinychat, convert_message($hellobyemsg['signup']))."', '".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."');"); 
+sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, sqlite3_last_insert_rowid($sqlite_tinychat)).", \"ip\"='".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."' WHERE \"id\"=".sqlite3_escape_string($sqlite_tinychat, $_SESSION['userid']).";"); exit(); }
+if($_GET['type']=="goodbye") { 
+sqlite3_query($sqlite_tinychat, "INSERT INTO \"".$sqlprefix."messages\" (\"userid\", \"username\", \"timestamp\", \"message\", \"ip\") VALUES ('".sqlite3_escape_string($sqlite_tinychat, $welcomemsg['userid'])."', '".sqlite3_escape_string($sqlite_tinychat, $welcomemsg['username'])."', '".sqlite3_escape_string($sqlite_tinychat, get_microtime())."', '".sqlite3_escape_string($sqlite_tinychat, convert_message($hellobyemsg['goodbye']))."', '".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."');"); 
+sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, sqlite3_last_insert_rowid($sqlite_tinychat)).", \"ip\"='".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."' WHERE \"id\"=".sqlite3_escape_string($sqlite_tinychat, $_SESSION['userid']).";"); exit(); } }
 if($_GET['act']=="login") { 
 $findmember = sqlite3_query($sqlite_tinychat, "SELECT COUNT(*) AS count FROM \"".$sqlprefix."members\" WHERE \"name\"='".sqlite3_escape_string($sqlite_tinychat, $_POST['username'])."';"); 
 $nummember = sqlite3_fetch_assoc($findmember);
@@ -161,7 +152,7 @@ if($nummsgs>=1) {
 $getlastmsg = sqlite3_query($sqlite_tinychat, "SELECT * FROM \"".$sqlprefix."messages\" ORDER BY \"id\" DESC LIMIT 1;");
 $getlastmsgid = sqlite3_fetch_assoc($getlastmsg); }
 if($nummsgs<=0) { $getlastmsgid['id'] = "0"; }
-sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, $getlastmsgid['id']).", \"ip\"='".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."' WHERE \"id\"=".$memberinfo['id'].";");
+sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, $getlastmsgid['id']).", \"ip\"='".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."' WHERE \"id\"=".sqlite3_escape_string($sqlite_tinychat, $memberinfo['id']).";");
 $_SESSION['userid'] = $memberinfo['id'];
 $_SESSION['username'] = $memberinfo['name'];
 echo "{success:loginuser};"; exit(); }

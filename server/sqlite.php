@@ -12,7 +12,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: sqlite.php - Last Update: 12/30/2012 Ver. 0.0.1 - Author: cooldude2k $
+    $FileInfo: sqlite.php - Last Update: 12/31/2012 Ver. 0.0.1 - Author: cooldude2k $
 */
 
 $ScriptFileName = basename($_SERVER['SCRIPT_NAME']);
@@ -162,6 +162,36 @@ $strftime = str_replace("%n", "\n", $strftime);
 $strftime = str_replace("%t", "\t", $strftime);
 $strftime = preg_replace("/\{percent\}p/s", "%", $strftime);
 return $strftime; }
+function convert_message($message) {
+$HTTP_REQUEST_LINE = $_SERVER["REQUEST_METHOD"]." ".$_SERVER["REQUEST_URI"]." ".$_SERVER["SERVER_PROTOCOL"];
+$LOG_QUERY_STRING = "";
+if($_SERVER["QUERY_STRING"]!=="") {
+$LOG_QUERY_STRING = "?".$_SERVER["QUERY_STRING"]; }
+if(trim($LOG_QUERY_STRING, "\x00..\x1F") == "") { $LOG_QUERY_STRING = ""; }
+$message = preg_replace("/%%/s", "{percent}p", $message);
+$message = preg_replace_callback("/%([\<\>]*?)\{([^\}]*)\}C/s", "get_cookie_values", $message);
+$message = preg_replace_callback("/%([\<\>]*?)\{([^\}]*)\}e/s", "get_env_values", $message);
+$message = preg_replace("/%([\<\>]*?)h/s", $_SERVER['REMOTE_ADDR'], $message);
+$message = preg_replace("/%([\<\>]*?)H/s", $_SERVER["SERVER_PROTOCOL"], $message);
+$message = preg_replace("/%([\<\>]*?)\{Referer\}i/s", $LOG_URL_REFERER, $message);
+$message = preg_replace("/%([\<\>]*?)\{User-Agent\}i/s", $LOG_USER_AGENT, $message);
+$message = preg_replace_callback("/%([\<\>]*?)\{([^\}]*)\}i/s", "get_server_values", $message);
+$message = preg_replace("/%([\<\>]*?)m/s", $_SERVER["REQUEST_METHOD"], $message);
+$message = preg_replace("/%([\<\>]*?)p/s", $_SERVER["SERVER_PORT"], $message);
+$message = preg_replace("/%([\<\>]*?)q/s", $LOG_QUERY_STRING, $message);
+$message = preg_replace("/%([\<\>]*?)r/s", $HTTP_REQUEST_LINE, $message);
+$message = preg_replace("/%([\<\>]*?)t/s", "[".date("d/M/Y:H:i:s O")."]", $message);
+$message = preg_replace_callback("/%([\<\>]*?)\{([^\}]*)\}t/s", "get_time", $message);
+$message = preg_replace("/%([\<\>]*?)v/s", $_SERVER["SERVER_NAME"], $message);
+$message = preg_replace("/%([\<\>]*?)V/s", $_SERVER["SERVER_NAME"], $message);
+$message = preg_replace("/\%\{UserName\}m/s", $_SESSION['username'], $message);
+$message = preg_replace("/\%\{MemberName\}m/s", $_SESSION['username'], $message);
+$message = preg_replace("/\%\{UserID\}m/s", $_SESSION['userid'], $message);
+$message = preg_replace("/\%\{MemberID\}m/s", $_SESSION['userid'], $message);
+$message = preg_replace("/\%\{ChatRoom\}m/s", $_GET['room'], $message);
+$message = preg_replace("/\%\{RoomName\}m/s", $_GET['room'], $message);
+$message = preg_replace("/\{percent\}p/s", "%", $message);
+return $message; }
 if($_GET['act']=="login"&&(!isset($_POST['username'])||!isset($_POST['userpass']))) { 
 	echo "{error:loginuser};"; exit(); }
 if($_GET['act']=="signup"&&(!isset($_POST['username'])||!isset($_POST['userpass']))) { 

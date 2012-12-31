@@ -13,7 +13,7 @@
     Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
     Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: tinychat.py - Last Update: 12/30/2012 Ver. 0.0.1 - Author: cooldude2k $
+    $FileInfo: tinychat.py - Last Update: 12/31/2012 Ver. 0.0.1 - Author: cooldude2k $
 '''
 
 import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64, gzip, StringIO;
@@ -176,14 +176,10 @@ inputwin.clear();
 inputwin.keypad(1);
 inputwin.scrollok(True);
 if(usrjustsignedup==False):
- hellomessage = "has joined chat room "+chatroomname+".";
- post_data = urllib.urlencode({'message': hellomessage});
- tinychating = login_opener.open(chaturl+"?act=message&room="+chatroomname, post_data);
+ tinychating = login_opener.open(chaturl+"?act=status&type=hello&room="+chatroomname);
 if(usrjustsignedup==True):
- hellomessage = "has signedup and joined chat room "+chatroomname+".";
- post_data = urllib.urlencode({'message': hellomessage});
- tinychating = login_opener.open(chaturl+"?act=message&room="+chatroomname, post_data);
-tinychattxt = login_opener.open(chaturl+"?act=welcome&room="+chatroomname);
+ tinychating = login_opener.open(chaturl+"?act=status&type=signup&room="+chatroomname);
+tinychattxt = login_opener.open(chaturl+"?act=status&type=welcome&room="+chatroomname);
 if(tinychattxt.info().get("Content-Encoding")=="gzip" or tinychattxt.info().get("Content-Encoding")=="deflate"):
  strbuf = StringIO.StringIO(tinychattxt.read());
  gzstrbuf = gzip.GzipFile(fileobj=strbuf);
@@ -193,7 +189,10 @@ if(tinychattxt.info().get("Content-Encoding")!="gzip" and tinychattxt.info().get
 if(re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", welcometext)):
  welcomearray = re.findall("\{timestamp\:([0-9\.]+)\,userid\:([0-9]+)\,username\:\"(.*)\"\,message\:\"(.*)\"};", welcometext);
  welcomearray = welcomearray[0];
- curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
+ if(welcomearray[2]>0):
+  curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK);
+ if(welcomearray[2]==0):
+  curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK);
  chatwin.addstr(base64.b64decode(welcomearray[2])+": ", curses.color_pair(2));
  curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_BLACK);
  chatwin.addstr(base64.b64decode(welcomearray[3])+"\n", curses.color_pair(3));
@@ -258,9 +257,7 @@ while(mymessagelc!="quit" and mymessagelc!="exit"):
 threadloopstop=True;
 gnm.cancel();
 curses.endwin();
-goodbyemessage = "has left chat room "+chatroomname+".";
-post_data = urllib.urlencode({'message': goodbyemessage});
-tinychating = login_opener.open(chaturl+"?act=message&room="+chatroomname, post_data);
+tinychating = login_opener.open(chaturl+"?act=status&type=goodbye&room="+chatroomname);
 tinychating = login_opener.open(chaturl+"?act=logout");
 if(sys.platform=="win32"):
  os.popen("cls");
