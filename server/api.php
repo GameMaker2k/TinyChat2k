@@ -8,11 +8,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     Revised BSD License for more details.
 
-    Copyright 2012 Cool Dude 2k - http://idb.berlios.de/
-    Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
-    Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
+    Copyright 2012-2013 Cool Dude 2k - http://idb.berlios.de/
+    Copyright 2012-2013 Game Maker 2k - http://intdb.sourceforge.net/
+    Copyright 2012-2013 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: api.php - Last Update: 12/31/2012 Ver. 0.0.1 - Author: cooldude2k $
+    $FileInfo: api.php - Last Update: 01/01/2013 Ver. 0.0.1 - Author: cooldude2k $
 */
 
 @ob_start("ob_gzhandler");
@@ -128,17 +128,26 @@ if(!in_array($_GET['type'], $tinystatuscheck)) { $_GET['type'] = "welcome"; }
 if($_GET['type']=="welcome") { 
 echo "{timestamp:".get_microtime().",userid:".$welcomemsg['userid'].",username:\"".base64_encode($welcomemsg['username'])."\",message:\"".base64_encode(convert_message($welcomemsg['message']))."\"};"; exit(); }
 if($_GET['type']=="hello") { 
+if($_SESSION['msgstatus']<0) { echo "{error:message};"; exit(); }
+if($_SESSION['msgstatus']>0) { echo "{error:message};"; exit(); }
+if($_SESSION['msgstatus']==0) { $_SESSION['msgstatus'] = 1;
 sqlite3_query($sqlite_tinychat, "INSERT INTO \"".$sqlprefix."messages\" (\"userid\", \"username\", \"timestamp\", \"message\", \"ip\") VALUES ('".sqlite3_escape_string($sqlite_tinychat, $welcomemsg['userid'])."', '".sqlite3_escape_string($sqlite_tinychat, $welcomemsg['username'])."', '".sqlite3_escape_string($sqlite_tinychat, get_microtime())."', '".sqlite3_escape_string($sqlite_tinychat, convert_message($hellobyemsg['hello']))."', '".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."');"); 
 sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, sqlite3_last_insert_rowid($sqlite_tinychat)).", \"ip\"='".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."' WHERE \"id\"=".sqlite3_escape_string($sqlite_tinychat, $_SESSION['userid']).";"); 
-echo "{success:message};"; exit(); }
+echo "{success:message};"; exit(); } }
 if($_GET['type']=="signup") { 
+if($_SESSION['msgstatus']<0) { echo "{error:message};"; exit(); }
+if($_SESSION['msgstatus']>0) { echo "{error:message};"; exit(); }
+if($_SESSION['msgstatus']==0) { $_SESSION['msgstatus'] = 1;
 sqlite3_query($sqlite_tinychat, "INSERT INTO \"".$sqlprefix."messages\" (\"userid\", \"username\", \"timestamp\", \"message\", \"ip\") VALUES ('".sqlite3_escape_string($sqlite_tinychat, $welcomemsg['userid'])."', '".sqlite3_escape_string($sqlite_tinychat, $welcomemsg['username'])."', '".sqlite3_escape_string($sqlite_tinychat, get_microtime())."', '".sqlite3_escape_string($sqlite_tinychat, convert_message($hellobyemsg['signup']))."', '".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."');"); 
 sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, sqlite3_last_insert_rowid($sqlite_tinychat)).", \"ip\"='".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."' WHERE \"id\"=".sqlite3_escape_string($sqlite_tinychat, $_SESSION['userid']).";"); 
-echo "{success:message};"; exit(); }
+echo "{success:message};"; exit(); } }
 if($_GET['type']=="goodbye") { 
+if($_SESSION['msgstatus']<1) { echo "{error:message};"; exit(); }
+if($_SESSION['msgstatus']>1) { echo "{error:message};"; exit(); }
+if($_SESSION['msgstatus']==1) { $_SESSION['msgstatus'] = 2;
 sqlite3_query($sqlite_tinychat, "INSERT INTO \"".$sqlprefix."messages\" (\"userid\", \"username\", \"timestamp\", \"message\", \"ip\") VALUES ('".sqlite3_escape_string($sqlite_tinychat, $welcomemsg['userid'])."', '".sqlite3_escape_string($sqlite_tinychat, $welcomemsg['username'])."', '".sqlite3_escape_string($sqlite_tinychat, get_microtime())."', '".sqlite3_escape_string($sqlite_tinychat, convert_message($hellobyemsg['goodbye']))."', '".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."');"); 
 sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, sqlite3_last_insert_rowid($sqlite_tinychat)).", \"ip\"='".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."' WHERE \"id\"=".sqlite3_escape_string($sqlite_tinychat, $_SESSION['userid']).";"); 
-echo "{success:message};"; exit(); } }
+echo "{success:message};"; exit(); } } }
 if($_GET['act']=="login") { 
 $findmember = sqlite3_query($sqlite_tinychat, "SELECT COUNT(*) AS count FROM \"".$sqlprefix."members\" WHERE \"name\"='".sqlite3_escape_string($sqlite_tinychat, $_POST['username'])."';"); 
 $nummember = sqlite3_fetch_assoc($findmember);
@@ -158,6 +167,7 @@ if($nummsgs<=0) { $getlastmsgid['id'] = "0"; }
 sqlite3_query($sqlite_tinychat, "UPDATE \"".$sqlprefix."members\" SET \"lastactive\"='".sqlite3_escape_string($sqlite_tinychat, time())."', \"lastmessageid\"=".sqlite3_escape_string($sqlite_tinychat, $getlastmsgid['id']).", \"ip\"='".sqlite3_escape_string($sqlite_tinychat, $_SERVER['REMOTE_ADDR'])."' WHERE \"id\"=".sqlite3_escape_string($sqlite_tinychat, $memberinfo['id']).";");
 $_SESSION['userid'] = $memberinfo['id'];
 $_SESSION['username'] = $memberinfo['name'];
+$_SESSION['msgstatus'] = 0;
 echo "{success:loginuser};"; exit(); }
 if($_POST['userpass']!=$memberinfo['password']) {
 $_SESSION = array();

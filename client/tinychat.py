@@ -9,11 +9,11 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     Revised BSD License for more details.
 
-    Copyright 2012 Cool Dude 2k - http://idb.berlios.de/
-    Copyright 2012 Game Maker 2k - http://intdb.sourceforge.net/
-    Copyright 2012 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
+    Copyright 2012-2013 Cool Dude 2k - http://idb.berlios.de/
+    Copyright 2012-2013 Game Maker 2k - http://intdb.sourceforge.net/
+    Copyright 2012-2013 Kazuki Przyborowski - https://github.com/KazukiPrzyborowski
 
-    $FileInfo: tinychat.py - Last Update: 12/31/2012 Ver. 0.0.1 - Author: cooldude2k $
+    $FileInfo: tinychat.py - Last Update: 01/01/2013 Ver. 0.0.1 - Author: cooldude2k $
 '''
 
 import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64, gzip, StringIO;
