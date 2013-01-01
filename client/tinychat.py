@@ -16,10 +16,18 @@
     $FileInfo: tinychat.py - Last Update: 01/01/2013 Ver. 0.0.1 - Author: cooldude2k $
 '''
 
-import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64, gzip, StringIO;
+import re, os, sys, getpass, readline, curses, hashlib, httplib, urllib, urllib2, cookielib, threading, time, socket, platform, base64, gzip, StringIO, argparse;
 
 chatproverinfo = ["TinyChat2k", 0, 0, 1, None];
 gettermtype=None;
+import argparse;
+parser = argparse.ArgumentParser();
+parser.add_argument("--username", help="user name");
+parser.add_argument("--password", help="user password");
+parser.add_argument("--chatroom", help="chatroom name");
+parser.add_argument("--url", help="tinychat url location");
+parser.add_argument("--useragent", help="user agent to use");
+tcargs = parser.parse_args();
 if(sys.platform!="win32"):
  gettermtype=os.getenv('TERM');
  os.popen("stty sane");
@@ -33,9 +41,9 @@ if(sys.platform!="win32" and gettermtype!="linux" and gettermtype!="bsdos" and g
  sys.stdout.write("\x1b]2;"+chatprofullname+" - Login\x07");
 if(sys.platform=="win32"):
  os.system("title "+chatprofullname+" - Login");
-if(len(sys.argv)>=2):
- tinychaturl = sys.argv[1];
-if(len(sys.argv)<2):
+if(tcargs.url!=None):
+ tinychaturl = tcargs.url;
+if(tcargs.url==None):
  tinychaturl = str(raw_input("TinyChat URL: ")).decode("utf-8");
  tinychaturl = tinychaturl.strip();
 myusername = None;
@@ -73,21 +81,24 @@ if(re.findall("(.*)\#([\da-z]+)\:(.*)\@([\da-z]+)", tinychaturl)):
 if(not re.findall("(.*)\#([\da-z]+)", tinychaturl) and not re.findall("(.*)\#([\da-z]+)\@([\da-z]+)", tinychaturl) and not re.findall("(.*)\#([\da-z]+)\:(.*)\@([\da-z]+)", tinychaturl)):
  chatsiteurl = tinychaturl.strip();
  chatsiteurl = chatsiteurl.replace("#", "");
- chatroomname = str(raw_input("Chat Room: ")).decode("utf-8");
- chatroomname = chatroomname.strip();
+ if(tcargs.chatroom!=None):
+  chatroomname = tcargs.chatroom.strip();
+ if(tcargs.chatroom==None):
+  chatroomname = str(raw_input("Chat Room: ")).decode("utf-8");
+  chatroomname = chatroomname.strip();
  chatroomname = chatroomname.replace("#", "");
  if(len(re.findall("([\da-z]+)", chatroomname))<1):
   sys.exit();
-if(len(sys.argv)>=3 and myusername==None):
- myusername = sys.argv[2].strip();
-if(len(sys.argv)<3 and myusername==None):
+if(tcargs.username!=None and myusername==None):
+ myusername = tcargs.username.strip();
+if(tcargs.username==None and myusername==None):
  myusername = str(raw_input("User Name: ")).decode("utf-8");
  myusername = myusername.strip();
 if(len(re.findall("([\da-z]+)", myusername))<1):
  sys.exit();
-if(len(sys.argv)>=4 and mypass==None):
- mypass = sys.argv[3];
-if(len(sys.argv)<4 and mypass==None):
+if(tcargs.password!=None and mypass==None):
+ mypass = tcargs.password;
+if(tcargs.password==None and mypass==None):
  mypass = getpass.getpass();
 mypasshash = hashlib.sha512(mypass.encode("utf-8")).hexdigest();
 chaturl = chatsiteurl;
@@ -102,9 +113,15 @@ if(sys.platform=="win32"):
   mywindowstype = "Windows NT "+str(getwinver[0])+" "+str(getwinver[1]);
  if(getwinver[3]==3):
   mywindowstype = "Windows CE "+str(getwinver[0])+" "+str(getwinver[1]);
- chatua = "Mozilla/5.0 (compatible; "+chatprouaname+"; "+mywindowstype+"; +"+chathostname+")";
+ if(tcargs.useragent!=None):
+  chatua = tcargs.useragent.strip();
+ if(tcargs.useragent==None):
+  chatua = "Mozilla/5.0 (compatible; "+chatprouaname+"; "+mywindowstype+"; +"+chathostname+")";
 if(sys.platform!="win32"):
- chatua = "Mozilla/5.0 (compatible; "+chatprouaname+"; "+platform.system()+" "+platform.machine()+" "+platform.release()+"; +"+chathostname+")";
+ if(tcargs.useragent!=None):
+  chatua = tcargs.useragent.strip();
+ if(tcargs.useragent==None):
+  chatua = "Mozilla/5.0 (compatible; "+chatprouaname+"; "+platform.system()+" "+platform.machine()+" "+platform.release()+"; +"+chathostname+")";
 if(sys.platform!="win32" and gettermtype!="linux" and gettermtype!="bsdos" and gettermtype!="freebsd" and gettermtype!="netbsd"):
  sys.stdout.write("\x1b]2;"+chatprofullname+" - "+chatroomname+"\x07");
 if(sys.platform=="win32"):
