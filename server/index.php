@@ -16,4 +16,3 @@
 */
 
 require("./api.php");
-?>
